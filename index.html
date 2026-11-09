@@ -1,3 +1,8 @@
+Да, в HTML-коде сломалась структура: блоки `.bar` и `.bar-left` не закрылись, из-за чего кнопки правления потеряли свои места, а редактор оказался вне контейнера. Я исправил вложенность, восстановил кнопки размера/шрифта/темы и вставил их на свои места.
+
+Вот полностью рабочий код:
+
+```html
 <!doctype html>
 <html lang="ru" data-theme="auto">
 <head>
@@ -69,7 +74,6 @@
     display:flex;
     flex-direction:column;
   }
-
   .bar{
     display:flex; align-items:center; justify-content:space-between;
     gap:24px; margin-bottom:36px;
@@ -91,17 +95,11 @@
     align-items: center;
     gap: 20px;
   }
-  .divider {
-    flex: 1;
-    height: 1px;
-    background: var(--line);
-    margin: 0 10px;
-  }
 
   .sizer{
     display:flex; align-items:center; gap:2px;
   }
-.sizer button{
+  .sizer button{
     appearance:none; border:0; background:transparent;
     color:var(--muted); 
     font-family: monospace;
@@ -295,7 +293,18 @@
 <body>
 <div class="wrap">
   <div class="bar">
-  <div class="bar-left">
+    <div class="bar-left">
+      <button class="text-btn" id="dec" aria-label="Меньше">−</button>
+      
+      <div class="fontwrap" id="fontwrap">
+        <button class="text-btn" id="fontToggle">Шрифт</button>
+        <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
+      </div>
+
+      <button class="text-btn" id="inc" aria-label="Больше">+</button>
+      
+      <button class="text-btn" id="view">Тема</button>
+    </div>
 
     <div class="bar-right">
       <button class="text-btn" id="download">Изолировать</button>
@@ -990,3 +999,4 @@
 </script>
 </body>
 </html>
+```
