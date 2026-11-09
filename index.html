@@ -405,6 +405,9 @@
   ].slice(0, 256);
 
   const MAX_URL_LEN = 5000;
+  const A = 'KQRBNabcdefgh12345678x=+#-KQRBNabcdefgh12345678x=+#-_';
+  const L = (() => { const m = Object.create(null); for (let i = 0; i < A.length; i++) m[A[i]] = i; return m; })();
+  const HAS_CS = typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
 
   const shuffleAlphabet = (arr) => {
     let c = arr.length, t, r;
@@ -421,23 +424,158 @@
   const te = new TextEncoder();
   const td = new TextDecoder();
 
+  const wf = (v) => {
+    const s = String(v ?? '');
+    if (typeof s.toWellFormed === 'function') return s.toWellFormed();
+    let o = '';
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charCodeAt(i);
+      if (c >= 0xd800 && c <= 0xdbff) {
+        const n = s.charCodeAt(i + 1);
+        if (n >= 0xdc00 && n <= 0xdfff) { o += s[i] + s[i + 1]; i++; }
+        else o += '\uFFFD';
+      } else if (c >= 0xdc00 && c <= 0xdfff) o += '\uFFFD';
+      else o += s[i];
+    }
+    return o;
+  };
+
+  const zc = (input) => {
+    const s = wf(input);
+    if (!s) return '';
+    const d = Object.create(null);
+    const tc = Object.create(null);
+    let ds = 3, nb = 2, ei = 2, w = '';
+    const st = { out: [], v: 0, p: 0 };
+    const em = (bit) => {
+      st.v = (st.v << 1) | bit;
+      if (st.p === 5) { st.out.push(A[st.v]); st.v = 0; st.p = 0; }
+      else st.p++;
+    };
+    const fl = () => {
+      if (w in tc) {
+        if (w.charCodeAt(0) < 256) {
+          for (let k = 0; k < nb; k++) em(0);
+          let v = w.charCodeAt(0);
+          for (let k = 0; k < 8; k++) { em(v & 1); v >>= 1; }
+        } else {
+          let v = 1;
+          for (let k = 0; k < nb; k++) { em(v & 1); v >>= 1; }
+          let vv = w.charCodeAt(0);
+          for (let k = 0; k < 16; k++) { em(vv & 1); vv >>= 1; }
+        }
+        ei--;
+        if (ei === 0) { ei = 2 ** nb; nb++; }
+        delete tc[w];
+      } else {
+        let v = d[w];
+        for (let k = 0; k < nb; k++) { em(v & 1); v >>= 1; }
+      }
+      ei--;
+      if (ei === 0) { ei = 2 ** nb; nb++; }
+    };
+    for (let i = 0; i < s.length; i++) {
+      const c = s.charAt(i);
+      if (!(c in d)) { d[c] = ds++; tc[c] = true; }
+      const wc = w + c;
+      if (wc in d) { w = wc; continue; }
+      fl();
+      d[wc] = ds++;
+      w = String(c);
+    }
+    if (w !== '') fl();
+    let v = 2;
+    for (let k = 0; k < nb; k++) { em(v & 1); v >>= 1; }
+    while (true) {
+      st.v <<= 1;
+      if (st.p === 5) { st.out.push(A[st.v]); break; }
+      st.p++;
+    }
+    return st.out.join('');
+  };
+
+  const rb = (n, data, len, get) => {
+    let bits = 0, power = 1;
+    const max = 2 ** n;
+    while (power !== max) {
+      const resb = data.val & data.pos;
+      data.pos >>= 1;
+      if (data.pos === 0) {
+        data.pos = 32;
+        if (data.i < len) data.val = get(data.i);
+        data.i++;
+      }
+      bits |= (resb > 0 ? 1 : 0) * power;
+      power <<= 1;
+    }
+    return bits;
+  };
+
+  const zd = (input) => {
+    if (input == null) return null;
+    if (input === '') return '';
+    const get = (i) => L[input.charAt(i)];
+    const data = { val: get(0), pos: 32, i: 1 };
+    if (data.val == null) return null;
+    const d = [0, 1, 2];
+    let ei = 4, ds = 4, nb = 3, en = '';
+    const res = [];
+    const next = rb(2, data, input.length, get);
+    let c;
+    if (next === 0) c = String.fromCharCode(rb(8, data, input.length, get));
+    else if (next === 1) c = String.fromCharCode(rb(16, data, input.length, get));
+    else if (next === 2) return '';
+    else return null;
+    d[3] = c;
+    let w = c;
+    res.push(c);
+    while (true) {
+      if (data.i > input.length) return null;
+      let bits = rb(nb, data, input.length, get);
+      if (bits === 0) {
+        d[ds] = String.fromCharCode(rb(8, data, input.length, get));
+        bits = ds++; ei--;
+      } else if (bits === 1) {
+        d[ds] = String.fromCharCode(rb(16, data, input.length, get));
+        bits = ds++; ei--;
+      } else if (bits === 2) {
+        return res.join('');
+      }
+      if (ei === 0) { ei = 2 ** nb; nb++; }
+      if (d[bits] !== undefined) en = d[bits];
+      else if (bits === ds) en = w + w.charAt(0);
+      else return null;
+      res.push(en);
+      d[ds++] = w + en.charAt(0);
+      ei--; w = en;
+      if (ei === 0) { ei = 2 ** nb; nb++; }
+    }
+  };
+
   const compress = async (text) => {
-    const stream = new CompressionStream('deflate');
-    const writer = stream.writable.getWriter();
-    writer.write(te.encode(text));
-    writer.close();
-    const response = new Response(stream.readable);
-    const buf = await response.arrayBuffer();
-    return new Uint8Array(buf);
+    if (HAS_CS) {
+      const stream = new CompressionStream('deflate');
+      const writer = stream.writable.getWriter();
+      writer.write(te.encode(text));
+      writer.close();
+      const response = new Response(stream.readable);
+      const buf = await response.arrayBuffer();
+      return new Uint8Array(buf);
+    }
+    const z = zc(text);
+    return te.encode(z);
   };
 
   const decompress = async (buf) => {
-    const stream = new DecompressionStream('deflate');
-    const writer = stream.writable.getWriter();
-    writer.write(buf);
-    writer.close();
-    const response = new Response(stream.readable);
-    return await response.text();
+    if (HAS_CS) {
+      const stream = new DecompressionStream('deflate');
+      const writer = stream.writable.getWriter();
+      writer.write(buf);
+      writer.close();
+      const response = new Response(stream.readable);
+      return await response.text();
+    }
+    return zd(td.decode(buf));
   };
 
   const u8b = (bytes) => {
@@ -447,14 +585,6 @@
       bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
     }
     return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-  };
-  const bu8 = (s) => {
-    s = String(s || '').replace(/-/g, '+').replace(/_/g, '/');
-    while (s.length % 4) s += '=';
-    const bin = atob(s);
-    const out = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-    return out;
   };
 
   const dk = async (pw, salt) => {
@@ -472,7 +602,7 @@
     const key = await dk(pw, salt);
     const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, z));
     const out = new Uint8Array(1 + 16 + 12 + ct.length);
-    out[0] = 1;
+    out[0] = HAS_CS ? 1 : 2;
     out.set(salt, 1);
     out.set(iv, 17);
     out.set(ct, 29);
@@ -482,7 +612,7 @@
   const dp = async (raw, pw) => {
     try {
       if (raw.length < 1 + 16 + 12 + 16) return null;
-      if (raw[0] !== 1) return null;
+      if (raw[0] !== 1 && raw[0] !== 2) return null;
       const salt = raw.slice(1, 17);
       const iv = raw.slice(17, 29);
       const ct = raw.slice(29);
@@ -561,7 +691,7 @@
       errFail: 'Нет',
       errError: 'Ошибка',
       msgSaved: 'Пользуйся офлайн. Усиль, изменив порядок алфавита в коде',
-      infoText: 'Текстиньо. Автономный инструмент для упаковки текста в ссылку с шифрованием паролем. Интерфейс, кодирование, сжатие, отрисовка кьюара реализованы внутри одного файла без обращения к внешним ресурсам или серверу. Нет отправки текста, пароля или кодировки на серверы и сторонние сервисы: нет fetch, XHR, WebSocket и внешних библиотек. После загрузки страницы обработка данных выполняется исключительно в браузере. Текст сжимается встроенной реализацией LZ-string-подобного алгоритма, затем преобразовывается через Web Crypto API: AES-256-GCM. Ключ выводится из введённого пароля алгоритмом PBKDF2-HMAC-SHA-256 с 200 000 итераций. Для каждого преобразования генерируются случайные 16-байтная соль и 12-байтный IV. Результат кодируется в Base64 URL-safe и записывается в текстовое поле редактора и во фрагмент адреса после #. При распаковке данные берутся из редактора или адресной строки, пароль проверяется попыткой распаковки; при неверном пароле AES-GCM не проходит проверку целостности. Ссылка фактически становится контейнером зашифрованного сообщения. Кнопка скачивания сохраняет файл приложения и позволяет работать с ним локально, без интернета. Предлагается усилить эффект изменением алфавита в коде. Размер шрифта, выбранный шрифт и тема сохраняются в localStorage. Сам текст и пароль кодом туда не записываются. Фрагмент адреса после # не входит в HTTP-запрос при загрузке страницы, поэтому сам по себе не отправляется серверу. Ссылка с текстом остаётся в адресной строке и может быть скопирована, переслана, сохранена или передана через кьюар. Это не открытый текст, для чтения получателю понадобится пароль.',
+      infoText: 'Текстиньо.',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       copyText: 'Скопировать'
     },
@@ -576,7 +706,7 @@
       errFail: 'None',
       errError: 'Error',
       msgSaved: 'Use offline. Enhance by changing the alphabet order in the code',
-      infoText: 'Textinho. Autonomous. The interface, encoding, compression, and QR-code rendering are implemented in a single file, with no calls to external resources or servers. No text, password, or encoded data is sent to servers or third-party services: there are no fetch, XHR, or WebSocket requests and no external libraries. Once the page has loaded, all data processing takes place exclusively in the browser.The text is compressed using a built-in LZ-string-like algorithm, then transformed through the Web Crypto API using AES-256-GCM. The key is derived from the entered password using PBKDF2-HMAC-SHA-256 with 200,000 iterations. A random 16-byte salt and a 12-byte IV are generated for each transformation. The result is encoded in URL-safe Base64 and placed in the editor’s text field and in the URL fragment after #.When unpacking, data is taken from the editor or the address bar. The password is checked by attempting to unpack the data; with an incorrect password, AES-GCM fails its integrity check. The download button saves the application file, allowing it to be used locally without an internet connection. The app suggests enhancing the effect by changing the alphabet in the code.The font size, selected font, and theme are saved in localStorage. The code does not store the text or password there. The URL fragment after # is not included in the HTTP request when the page loads, so it is not sent to the server by itself. A link containing the text remains in the address bar and can be copied, forwarded, saved, or shared via QR code. It is not plain text; the recipient needs the password to read it.',
+      infoText: 'Textinho. ',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       copyText: 'Copy'
     }
