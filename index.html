@@ -322,7 +322,7 @@
         <button class="lang" id="lang">𝓔𝓝</button>
         <button class="dl" id="download">🡇</button>
         <button class="help" id="help">▤</button>
-        <button class="help" id="donate">♡</button>
+        <button class="help" id="donate">❥</button>
     </div>
   </div>
 
@@ -331,8 +331,8 @@
   <div class="foot">
     <button class="convert" id="go" aria-label="Преобразовать">#</button>
   </div>
-</div>
-
+</div>    
+      
 <div class="overlay" id="overlay">
   <div class="modal" role="dialog" aria-modal="true">
       <div class="passrow">
@@ -354,12 +354,13 @@
     <button class="closex" id="infoClose" aria-label="Закрыть">×</button>
     <p class="info-text" id="infoText"></p>
   </div>
-      <div class="overlay" id="donateModal">
+</div>
+
+<div class="overlay" id="donateModal">
   <div class="modal" role="dialog" aria-modal="true">
     <button class="closex" id="donateClose" aria-label="Закрыть">×</button>
     <p class="info-text" id="donateText"></p>
   </div>
-</div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -368,7 +369,7 @@
 (() => {
   'use strict';
 
-  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  const A = 'KQRBNabcdefgh12345678x=+#-KQRBNabcdefgh12345678x=+#-_';
   const L = (() => { const m = Object.create(null); for (let i = 0; i < A.length; i++) m[A[i]] = i; return m; })();
   const HASH_LIMIT = 24000;
 
@@ -716,7 +717,7 @@
       errFail: 'None',
       errError: 'Error',
       msgSaved: 'Use offline. Enhance by changing the alphabet order in the code',
-      infoText: 'Textinho. Autonomous. The interface, encoding, compression, and QR-code rendering are implemented in a single file, with no calls to external resources or servers. No text, password, or encoded data is sent to servers or third-party services: there are no fetch, XHR, or WebSocket requests and no external libraries. Once the page has loaded, all data processing takes place exclusively in the browser.The text is compressed using a built-in LZ-string-like algorithm, then transformed through the Web Crypto API using AES-256-GCM. The key is derived from the entered password using PBKDF2-HMAC-SHA-256 with 200,000 iterations. A random 16-byte salt and a 12-byte IV are generated for each transformation. The result is encoded in URL-safe Base64 and placed in the editor’s text field and in the URL fragment after #.When unpacking, data is taken from the editor or the address bar. The password is checked by attempting to unpack the data; with an incorrect password, AES-GCM fails its integrity check. The download button saves the application file, allowing it to be used locally without an internet connection. The app suggests enhancing the effect by changing the alphabet in the code.The font size, selected font, and theme are saved in localStorage. The code does not store the text or password there. The URL fragment after # is not included in the HTTP request when the page loads, so it is not sent to the server by itself. A link containing the text remains in the address bar and can be copied, forwarded, saved, or shared via QR code. It is not plain text; the recipient needs the password to read it. bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
+      infoText: 'Textinho. Autonomous. The interface, encoding, compression, and QR-code rendering are implemented in a single file, with no calls to external resources or servers. No text, password, or encoded data is sent to servers or third-party services: there are no fetch, XHR, or WebSocket requests and no external libraries. Once the page has loaded, all data processing takes place exclusively in the browser.The text is compressed using a built-in LZ-string-like algorithm, then transformed through the Web Crypto API using AES-256-GCM. The key is derived from the entered password using PBKDF2-HMAC-SHA-256 with 200,000 iterations. A random 16-byte salt and a 12-byte IV are generated for each transformation. The result is encoded in URL-safe Base64 and placed in the editor’s text field and in the URL fragment after #.When unpacking, data is taken from the editor or the address bar. The password is checked by attempting to unpack the data; with an incorrect password, AES-GCM fails its integrity check. The download button saves the application file, allowing it to be used locally without an internet connection. The app suggests enhancing the effect by changing the alphabet in the code.The font size, selected font, and theme are saved in localStorage. The code does not store the text or password there. The URL fragment after # is not included in the HTTP request when the page loads, so it is not sent to the server by itself. A link containing the text remains in the address bar and can be copied, forwarded, saved, or shared via QR code. It is not plain text; the recipient needs the password to read it.',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       qrBtn: 'QR'
     }
@@ -738,6 +739,7 @@
     });
     setModalStatus('');
     infoText.textContent = t.infoText;
+            donateText.textContent = t.donateText;
   };
 
   langBtn.addEventListener('click', () => {
@@ -907,6 +909,12 @@
   });
   $('infoClose').addEventListener('click', () => infoModal.classList.remove('open'));
   infoModal.addEventListener('mousedown', (e) => { if (e.target === infoModal) infoModal.classList.remove('open'); });
+
+        $('donate').addEventListener('click', () => {
+    donateModal.classList.add('open');
+  });
+  $('donateClose').addEventListener('click', () => donateModal.classList.remove('open'));
+  donateModal.addEventListener('mousedown', (e) => { if (e.target === donateModal) donateModal.classList.remove('open'); });
 
   const doPack = async () => {
     const text = editor.value;
