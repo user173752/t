@@ -152,7 +152,7 @@
   .editor{
     width:100%;
     flex:1 1 auto;
-    min-height:40vh;
+    min-height:34.5vh;
     border:0; outline:none; resize:none;
     background:transparent; color:var(--text);
     font:inherit; line-height:1.75;
@@ -257,9 +257,12 @@
     text-align:center; line-height:1.4; max-width:80%;
   }
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+  
   #qrModal {
     background: var(--overlay); 
     backdrop-filter: blur(2px);
+    flex-direction: column;
+    gap: 15px;
   }
   #qrModal.open { display: flex; }
   #qrCanvas { 
@@ -267,6 +270,17 @@
     box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
     border-radius: 8px;
   }
+  .qr-copy {
+    display: none;
+    appearance:none; border:0; background:transparent;
+    color:var(--muted); font:inherit;
+    font-family: monospace;
+    font-size: 15px;
+    padding: 0;
+    cursor: default;
+    -webkit-tap-highlight-color:transparent;
+  }
+  
   #infoModal .modal, #donateModal .modal {
     display: flex;
     flex-direction: column;
@@ -323,6 +337,9 @@
     .foot .copy-text {
       display: block;
     }
+    .qr-copy {
+      display: block;
+    }
   }
 </style>
 </head>
@@ -339,7 +356,7 @@
       <button class="text-btn" id="view">Тема</button>
     </div>
     <div class="bar-right">
-      <button class="text-btn" id="download">Изолировать</button>
+      <button class="text-btn" id="download">Офлайн</button>
       <button class="text-btn" id="infoBtn">Инфо</button>
       <button class="text-btn" id="donateBtn">Биток</button>
       <button class="text-btn lang" id="lang">Eng</button>
@@ -368,6 +385,7 @@
 
 <div class="overlay" id="qrModal">
   <canvas id="qrCanvas"></canvas>
+  <button class="qr-copy" id="copyQr">Копировать</button>
 </div>
 
 <div class="overlay" id="infoModal">
@@ -724,7 +742,8 @@
       infoText: 'Текстиньо.  Автономный инструмент для упаковки текста в ссылку с шифрованием паролем. Интерфейс, кодирование, сжатие, отрисовка кьюара реализованы внутри одного файла без обращения к внешним ресурсам или серверу. Нет отправки текста, пароля или кодировки на серверы и сторонние сервисы: нет fetch, XHR, WebSocket и внешних библиотек. После загрузки страницы обработка данных выполняется исключительно в браузере. Текст сжимается встроенной реализацией LZ-string-подобного алгоритма, затем преобразовывается через Web Crypto API: AES-256-GCM. Ключ выводится из введённого пароля алгоритмом PBKDF2-HMAC-SHA-256 с 200 000 итераций. Для каждого преобразования генерируются случайные 16-байтная соль и 12-байтный IV. Результат кодируется в Base64 URL-safe и записывается в текстовое поле редактора и во фрагмент адреса после #. При распаковке данные берутся из редактора или адресной строки, пароль проверяется попыткой распаковки; при неверном пароле AES-GCM не проходит проверку целостности. Ссылка фактически становится контейнером зашифрованного сообщения. Кнопка скачивания сохраняет файл приложения и позволяет работать с ним локально, без интернета. Предлагается усилить эффект изменением алфавита в коде. Размер шрифта, выбранный шрифт и тема сохраняются в localStorage. Сам текст и пароль кодом туда не записываются. Фрагмент адреса после # не входит в HTTP-запрос при загрузке страницы, поэтому сам по себе не отправляется серверу. Ссылка с текстом остаётся в адресной строке и может быть скопирована, переслана, сохранена или передана через кьюар. Это не открытый текст, для чтения получателю понадобится пароль.',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       qrBtn: 'Кьюар',
-      copyText: 'Скопировать'
+      copyText: 'Скопировать',
+      copyQr: 'Копировать'
     },
     en: {
       title: 'Textinho. Text in the link',
@@ -740,7 +759,8 @@
       infoText: 'Textinho. Autonomous. The interface, encoding, compression, and QR-code rendering are implemented in a single file, with no calls to external resources or servers. No text, password, or encoded data is sent to servers or third-party services: there are no fetch, XHR, or WebSocket requests and no external libraries. Once the page has loaded, all data processing takes place exclusively in the browser.The text is compressed using a built-in LZ-string-like algorithm, then transformed through the Web Crypto API using AES-256-GCM. The key is derived from the entered password using PBKDF2-HMAC-SHA-256 with 200,000 iterations. A random 16-byte salt and a 12-byte IV are generated for each transformation. The result is encoded in URL-safe Base64 and placed in the editor’s text field and in the URL fragment after #.When unpacking, data is taken from the editor or the address bar. The password is checked by attempting to unpack the data; with an incorrect password, AES-GCM fails its integrity check. The download button saves the application file, allowing it to be used locally without an internet connection. The app suggests enhancing the effect by changing the alphabet in the code.The font size, selected font, and theme are saved in localStorage. The code does not store the text or password there. The URL fragment after # is not included in the HTTP request when the page loads, so it is not sent to the server by itself. A link containing the text remains in the address bar and can be copied, forwarded, saved, or shared via QR code. It is not plain text; the recipient needs the password to read it.',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       qrBtn: 'QR',
-      copyText: 'Copy'
+      copyText: 'Copy',
+      copyQr: 'Copy'
     }
   };
 
@@ -753,12 +773,13 @@
     btnUnpack.title = t.unpackTitle;
     btnQr.textContent = t.qrBtn;
     $('copyEditor').textContent = t.copyText;
+    $('copyQr').textContent = t.copyQr;
     
     infoBtn.textContent = isEN ? 'Info' : 'Инфо';
     donateBtn.textContent = isEN ? 'Bitcoin' : 'Биток';
     fontToggle.textContent = isEN ? 'Font' : 'Шрифт';
     view.textContent = isEN ? 'Theme' : 'Тема';
-    downloadBtn.textContent = isEN ? 'Download' : 'Изолировать';
+    downloadBtn.textContent = isEN ? 'Offline' : 'Офлайн';
     langBtn.textContent = isEN ? 'Русский' : 'Eng';
     
     fontMenu.querySelectorAll('button').forEach(b => {
@@ -841,10 +862,16 @@
   $('dec').addEventListener('click', () => { if (fontSize > 14) { fontSize -= 2; applySize(); } });
   $('inc').addEventListener('click', () => { if (fontSize < 38) { fontSize += 2; applySize(); } });
 
+  let growScheduled = false;
   const grow = () => {
-    editor.style.height = 'auto';
-    const min = Math.max(window.innerHeight * 0.3, 200);
-    editor.style.height = Math.max(editor.scrollHeight, min) + 'px';
+    if (growScheduled) return;
+    growScheduled = true;
+    requestAnimationFrame(() => {
+      editor.style.height = 'auto';
+      const min = Math.max(window.innerHeight * 0.345, 200);
+      editor.style.height = Math.max(editor.scrollHeight, min) + 'px';
+      growScheduled = false;
+    });
   };
   editor.addEventListener('input', grow);
   window.addEventListener('resize', grow);
@@ -893,38 +920,45 @@
       const count = matrix.length;
       
       const displaySize = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.8, 600);
-      const cellSize = Math.floor(displaySize / count);
+      const cellSize = Math.max(1, Math.floor(displaySize / count));
       const size = count * cellSize;
 
       qrCanvas.width = size;
       qrCanvas.height = size;
-      
       qrCanvas.style.width = size + 'px';
       qrCanvas.style.height = size + 'px';
 
       const ctx = qrCanvas.getContext('2d');
+      const imgData = ctx.createImageData(size, size);
+      const data = imgData.data;
 
       const isDark = currentTheme() === 'dark';
-      const fgColor = isDark ? '#14120f' : '#d8cfc1'; 
-      const bgColor = isDark ? '#d8cfc1' : '#14120f'; 
+      const fgColor = isDark ? [20, 18, 15, 255] : [216, 207, 193, 255];
+      const bgColor = isDark ? [216, 207, 193, 255] : [20, 18, 15, 255];
 
-      ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, size, size);
-      ctx.fillStyle = fgColor;
-      
-      for (let row = 0; row < count; row++) {
-        for (let col = 0; col < count; col++) {
-          if (matrix[row][col]) {
-            ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-          }
+      for (let r = 0; r < size; r++) {
+        const row = Math.floor(r / cellSize);
+        for (let c = 0; c < size; c++) {
+          const col = Math.floor(c / cellSize);
+          const isDarkCell = matrix[row][col] === 1;
+          const color = isDarkCell ? fgColor : bgColor;
+          const idx = (r * size + c) * 4;
+          data[idx] = color[0];
+          data[idx+1] = color[1];
+          data[idx+2] = color[2];
+          data[idx+3] = color[3];
         }
       }
+      ctx.putImageData(imgData, 0, 0);
     } catch (e) {
       console.error(e);
     }
   };
 
-  const closeQr = () => qrModal.classList.remove('open');
+  const closeQr = () => {
+    qrModal.classList.remove('open');
+    document.body.classList.remove('modal-open');
+  };
   qrModal.addEventListener('click', (e) => {
     if (e.target === qrModal) closeQr();
   });
@@ -977,13 +1011,6 @@
     
       if (btnQr.classList.contains('active')) {
         const futureUrl = location.origin + location.pathname + '#' + hash;
-        
-        if (navigator.share) {
-          navigator.share({ url: futureUrl }).catch(() => {});
-        } else {
-          try { await navigator.clipboard.writeText(futureUrl); } catch {}
-        }
-        
         drawQR(futureUrl);
         qrModal.classList.add('open');
         document.body.classList.add('modal-open');
@@ -1049,6 +1076,21 @@
     }
     toastEl.classList.add('show');
     setTimeout(() => toastEl.classList.remove('show'), 2000);
+  });
+
+  $('copyQr').addEventListener('click', () => {
+    qrCanvas.toBlob(async (blob) => {
+      if (!blob) return;
+      try {
+        const item = new ClipboardItem({ [blob.type]: blob });
+        await navigator.clipboard.write([item]);
+        toastEl.textContent = isEN ? 'Copied' : 'Скопировано';
+      } catch {
+        toastEl.textContent = isEN ? 'Error' : 'Ошибка';
+      }
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), 2000);
+    });
   });
 
   downloadBtn.addEventListener('click', () => {
