@@ -419,8 +419,7 @@
     "Inna","Iraida","Irina","Iya","Kapitolina","Karina","Kira","Klavdiya","Kristina","Kseniya"
   ].slice(0, 256);
 
-  const HASH_LIMIT = 200000;
-  const UI_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  const MAX_URL_LEN = 5000;
 
   const shuffleAlphabet = (arr) => {
     let c = arr.length, t, r;
@@ -433,22 +432,6 @@
   const MAP_F2N = shuffleAlphabet([...Array(256).keys()]);
   const MAP_N2F = new Array(256);
   for (let i = 0; i < 256; i++) MAP_N2F[MAP_F2N[i]] = i;
-
-  const wf = (v) => {
-    const s = String(v ?? '');
-    if (typeof s.toWellFormed === 'function') return s.toWellFormed();
-    let o = '';
-    for (let i = 0; i < s.length; i++) {
-      const c = s.charCodeAt(i);
-      if (c >= 0xd800 && c <= 0xdbff) {
-        const n = s.charCodeAt(i + 1);
-        if (n >= 0xdc00 && n <= 0xdfff) { o += s[i] + s[i + 1]; i++; }
-        else o += '\uFFFD';
-      } else if (c >= 0xdc00 && c <= 0xdfff) o += '\uFFFD';
-      else o += s[i];
-    }
-    return o;
-  };
 
   const te = new TextEncoder();
   const td = new TextDecoder();
@@ -590,7 +573,7 @@
       unpackTitle: 'Распаковать',
       errEmpty: 'Пусто',
       errLen: '10 символов',
-      errLong: 'Сократите',
+      errLong: 'Ссылка слишком длинная, пересылайте текстом',
       errFail: 'Нет',
       errError: 'Ошибка',
       msgSaved: 'Пользуйся офлайн. Усиль, изменив порядок алфавита в коде',
@@ -605,7 +588,7 @@
       unpackTitle: 'Unpack',
       errEmpty: 'Empty',
       errLen: '10 characters',
-      errLong: 'Shorten text',
+      errLong: 'Link too long, send as text',
       errFail: 'None',
       errError: 'Error',
       msgSaved: 'Use offline. Enhance by changing the alphabet order in the code',
@@ -785,7 +768,7 @@
     }
   });
 
-   const downloadTxt = (content) => {
+  const downloadTxt = (content) => {
     const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const now = new Date();
     const dd = String(now.getDate()).padStart(2, '0');
@@ -804,9 +787,6 @@
     
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-    
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
 
   const doPack = async () => {
     const text = editor.value;
@@ -822,19 +802,21 @@
       if (!rawHash) { setModalStatus(t.errError, 'err'); return; }
       
       const namesHash = bytesToNames(rawHash);
-      if (namesHash.length > HASH_LIMIT) {
-        setModalStatus(t.errLong, 'err');
-        return;
-      }
       
       if (document.activeElement === btnTxt) {
         downloadTxt(namesHash);
       }
       
       editor.value = namesHash;
-      setHash(namesHash);
       grow();
-      closeModal();
+      
+      if (namesHash.length > MAX_URL_LEN) {
+        setHash('');
+        setModalStatus(t.errLong, 'err');
+      } else {
+        setHash(namesHash);
+        closeModal();
+      }
     } catch { setModalStatus(t.errError, 'err'); }
     finally { lockBtns(false); }
   };
