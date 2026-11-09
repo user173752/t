@@ -80,14 +80,15 @@
     z-index:30;
     flex:0 0 auto;
   }
-  .bar-left, .bar-right{
+   .bar-left, .bar-right{
     display:flex; align-items:center; gap:14px;
-    flex: 1;
   }
   .bar-left {
+    flex: 1;
     justify-content: flex-start;
   }
   .bar-right {
+    flex: 1;
     justify-content: flex-end;
   }
   .bar-center {
@@ -331,14 +332,11 @@
       </div>
     </div>
     
-    <div class="bar-center">
-      <button class="dl" id="download">🡇</button>
-      <button class="help" id="help">▤</button>
-    </div>
-
     <div class="bar-right">
-        <button class="lang" id="lang">𝓔𝓝</button>
+        <button class="dl" id="download">🡇</button>
+        <button class="help" id="help">▤</button>
         <button class="help" id="donate">♥</button>
+        <button class="lang" id="lang">𝓔𝓝</button>
     </div>
   </div>
 
