@@ -409,18 +409,6 @@
   const L = (() => { const m = Object.create(null); for (let i = 0; i < A.length; i++) m[A[i]] = i; return m; })();
   const HAS_CS = typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
 
-  const shuffleAlphabet = (arr) => {
-    let c = arr.length, t, r;
-    while (c) {
-      r = Math.floor(Math.random() * c--);
-      t = arr[c]; arr[c] = arr[r]; arr[r] = t;
-    }
-    return arr;
-  };
-  const MAP_F2N = shuffleAlphabet([...Array(256).keys()]);
-  const MAP_N2F = new Array(256);
-  for (let i = 0; i < 256; i++) MAP_N2F[MAP_F2N[i]] = i;
-
   const te = new TextEncoder();
   const td = new TextDecoder();
 
@@ -562,8 +550,7 @@
       const buf = await response.arrayBuffer();
       return new Uint8Array(buf);
     }
-    const z = zc(text);
-    return te.encode(z);
+    return te.encode(zc(text));
   };
 
   const decompress = async (buf) => {
@@ -576,15 +563,6 @@
       return await response.text();
     }
     return zd(td.decode(buf));
-  };
-
-  const u8b = (bytes) => {
-    let bin = '';
-    const CH = 0x8000;
-    for (let i = 0; i < bytes.length; i += CH) {
-      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CH));
-    }
-    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
   };
 
   const dk = async (pw, salt) => {
@@ -625,8 +603,7 @@
   const bytesToNames = (bytes) => {
     const parts = [];
     for (let i = 0; i < bytes.length; i++) {
-      const b = MAP_F2N[bytes[i]];
-      parts.push(NAMES[b]);
+      parts.push(NAMES[bytes[i]]);
     }
     return parts.join('-');
   };
@@ -635,10 +612,9 @@
     const parts = str.split('-');
     const bytes = new Uint8Array(parts.length);
     for (let i = 0; i < parts.length; i++) {
-      const name = parts[i];
-      const idx = NAMES.indexOf(name);
+      const idx = NAMES.indexOf(parts[i]);
       if (idx === -1) return null;
-      bytes[i] = MAP_N2F[idx];
+      bytes[i] = idx;
     }
     return bytes;
   };
