@@ -231,12 +231,12 @@
   .passrow .act[disabled]{opacity:.4}
   .passrow .act.pack{background:var(--accent); color:var(--bg); border-color:var(--accent)}
   .passrow .act.pack:hover{opacity:.85}
-  .passrow .act.qr-btn.active {
+  .passrow .act.txt-btn.active {
     background: var(--muted);
     color: var(--bg);
     border-color: var(--muted);
   }
-  .passrow .qr-btn {
+  .passrow .txt-btn {
     font-size: 14px;
     font-weight: 400;
     padding: 0 10px;
@@ -392,45 +392,32 @@
     "Nikon","Nil","Oskar","Ostap","Pankrat","Panteley","Patrikey","Pimen","Platon","Potap",
     "Prokhor","Rafail","Ratmir","Rodion","Rostislav","Saveliy","Samson","Samuel","Semyon","Sergey",
     "Sidor","Sokrat","Solomon","Spartak","Stepan","Taras","Tigran","Tikhon","Timofey","Trofim",
-    "Ustin","Valeriy","Vasiliy","Veniamin","Viktor","Vilen","Vissarion","Vitaliy","Vladimir","Vladislav",
+    "Ustin","Valery","Vasily","Veniamin","Viktor","Vilen","Vissarion","Vitaliy","Vladimir","Vladislav",
     "Vsevolod","Vyacheslav","Yakov","Yefim","Yelisey","Yemelyan","Yeremey","Yermolay","Yevgeniy","Yevgraf",
-    "Yevdokim","Yevstafiy","Yulian","Zakhar","Zinoviy","Zosima","Aristarkh","Arseniy","Artemiy",
-    "Artur","Afanasiy","Bogdan","Bronislav","Budimir","Demid","Dementiy","Demyan","Dionis","Dmitriy",
-    "Dobrynya","Dorofey","Daniil","David","Dobromir","Andrey","Aleksey","Anatoliy","Arkadiy","Arnold",
-    "Valentin","Valerian","Venedikt","Vikentiy","Vladlen","Vseslav","Gavriil","Gennadiy","Georgiy",
-    "German","Gordey","Grigoriy","Guriy","Yefrem","Zosim","Ignat","Ignatiy",
-    "Izmail","Illarion","Iosaf","Ipat","Isay","Kazimir","Kallistrat","Kapiton",
-    "Konstantin","Lavr","Leontiy","Lyubomir","Maksim","Maksimilian","Marks","Marty",
-    "Mecheslav","Mefodiy","Miley","Miroslav","Mihail","Modest"
-  ];
-
-  const SURNAMES = [
-    "Ivanov","Petrov","Sidorov","Smirnov","Kuznetsov","Popov","Sokolov","Lebedev","Kozlov","Novikov",
-    "Morozov","Volkov","Alekseev","Pavlov","Semenov","Golubev","Vinogradov","Bogdanov","Vorobev","Fedorov",
-    "Mikhaylov","Belyaev","Tarasov","Belov","Komarov","Orlov","Kiselev","Makarov","Andreev","Kovalev",
-    "Ilin","Gusev","Titov","Kuzmin","Kudryavtsev","Baranov","Kulikov","Stepanov","Yakovlev","Sorokin",
-    "Sergeev","Romanov","Zakharov","Borisov","Korolev","Gerasimov","Ponomarev","Grigorev","Lazarev","Medvedev",
-    "Ershov","Nikitin","Sobolev","Ryabov","Polyakov","Tsvetkov","Danilov","Zhukov","Frolov","Zhuravlev",
-    "Nikolaev","Krylov","Maksimov","Osipov","Belousov","Fedotov","Dorofeev","Egorov","Matveev","Bobrov",
-    "Dmitriev","Kalinin","Anisimov","Petukhov","Antonov","Timofeev","Nikiforov","Veselov","Filippov","Markov",
-    "Bolshakov","Suvorov","Denisov","Fomin","Gordeev","Karpov","Afanasev","Vlasov","Maslov","Isakov",
-    "Tikhomirov","Gromov","Shcherbakov","Nazarov","Kalinin","Savin","Kolesnikov","Kolesov","Kuznetsov","Krasnov",
-    "Panov","Privalov","Prokhorov","Rodionov","Samsonov","Safonov","Seleznev","Semyonov","Sidorov","Solovev",
-    "Titov","Trofimov","Ustinov","Fadeev","Fomin","Frolov","Kharitonov","Tsvetkov","Chernov","Shaposhnikov",
-    "Yudin","Yakovlev","Zaytsev","Zimin","Zolotarev","Zuev","Alekseev","Andrianov","Arhipov","Barabanov",
-    "Belyakov","Biryukov","Blinov","Bondarenko","Burov","Bykov","Vasilev","Vetrov","Vinogradov","Vishnevskiy",
-    "Gavrilov","Gerasimov","Gladkov","Golovin","Goncharov","Gorbunov","Grigorev","Gulyaev","Danilov","Davydov",
-    "Egorov","Efimov","Efremov","Zhigulin","Zotov","Ivanov","Ivashenko","Ilyin","Kalinin","Kapitonov",
-    "Karpov","Kiselev","Kovalev","Kozlov","Kolesov","Komarov","Kondratev","Konovalov","Korolev","Kostin",
-    "Kotov","Krasilnikov","Kruglov","Krylov","Kudryashov","Kuzmin","Kulikov","Kurakin","Lavrov","Lapin",
-    "Larin","Lebedev","Loginov","Lukin","Lukyanov","Makarov","Maksimov","Maltsev","Mamonov","Marchenko",
-    "Markov","Maslov","Matveev","Medvedev","Melnikov","Mironov","Mihaylov","Moisseev","Morozov","Muravev",
-    "Nazarov","Naumov","Nekrasov","Nikitin","Nikolaev","Novikov","Nosov","Ovchinnikov","Orlov","Osipov",
-    "Panov","Pavlov","Petrov","Pirogov","Plotnikov","Ponomarev","Popov","Potapov","Prokhorov","Rodionov",
-    "Romanov","Rumyantsev","Rybakov","Safonov","Semenov","Sergeev","Sidorov","Sizov","Smirnov","Sobolev",
-    "Sokolov","Solovev","Sorokin","Stepanov","Suvorov","Tarasov","Tihonov","Timofeev","Titov","Trofimov",
-    "Fedorov","Filippov","Fomin","Frolov","Kharitonov","Tsvetkov","Chernov","Chistyakov","Shapovalov","Scherbakov"
-  ];
+    "Yevdokim","Yevstafiy","Yulian","Zakhar","Zinoviy","Zosima","Aristarkh","Arseniy","Artemy",
+    "Artur","Afanasy","Bogdan","Bronislav","Budimir","Demid","Dementy","Demyan","Dionis","Dmitry",
+    "Dobrynya","Dorofey","Daniil","David","Dobromir","Andrey","Aleksey","Anatoly","Arkady","Arnold",
+    "Valentin","Valerian","Venedikt","Vikenty","Vladlen","Vseslav","Gavriil","Gennadiy","Georgiy",
+    "German","Gordey","Grigory","Dan","Yefrem","Zosim","Ignat","Ignatiy",
+    "Izmail","Illarion","Iosaf","Vily","Isay","Kazimir","Kallistrat","Kapiton",
+    "Konstantin","Lavr","Leontiy","Lyubomir","Maksim","Maksimilian","Antip","Marty",
+    "Mecheslav","Mefodiy","Miley","Miroslav","Mihail","Modest",
+    "Anna","Olga","Vera","Masha","Dasha","Katya","Tanya","Sveta","Lena","Yana",
+    "Rima","Zoy","Nina","Lida","Galy","Tony","Nady","Sony","Klava","Mira",
+    "Lera","Vika","Dina","Poly","Rita","Sima","Olya","Asya","Inna","Ray",
+    "Fay","Zina","Liza","Mila","Ulya","Yulya","Yuly","Oksana","Alina","Vlada",
+    "Darya","Marina","Larisa","Nataly","Kseniya","Nika","Alisa","Eva","Maya","Varya",
+    "Sofy","Kira","Vasilisa","Ulyana","Anastasiya","Valeriya","Kristina","Viktoriya","Ekaterina","Evgeniya",
+    "Lybov","Nadezhda","Lyudmila","Svetlana","Tatyana","Galina","Valentina","Nina","Raisa","Zinaida",
+    "Tamara","Alla","Emma","Elza","Ada","Aza","Aza","Liya","Lola","Nell",
+    "Nora","Roza","Ruta","Sara","Sofa","Faina","Flora","Elvira","Yuna","Yana",
+    "Alena","Alina","Alisa","Alla","Anastasia","Angelina","Anzhelika","Ariadna","Arina","Asya",
+    "Bella","Berta","Bogdana","Valentina","Valeriya","Vanda","Varvara","Vasilisa","Vera","Veronika",
+    "Viktoriya","Violetta","Vita","Vlada","Vladislava","Vlada","Galina","Gella","Darya","Diana",
+    "Dina","Eva","Evgeniya","Evdokiya","Ekaterina","Elena","Elizaveta","Elmira","Elvira","Emiliya",
+    "Erika","Esfir","Yva","Yva","Zhanna","Zarina","Zinaida","Zoya","Zulfiya","Inessa",
+    "Inna","Iraida","Irina","Iya","Kapitolina","Karina","Kira","Klavdiya","Kristina","Kseniya"
+  ].slice(0, 256);
 
   const HASH_LIMIT = 24000;
   const UI_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
@@ -539,35 +526,23 @@
 
   const bytesToNames = (bytes) => {
     const parts = [];
-    for (let i = 0; i < bytes.length; i += 2) {
-      const b1 = MAP_F2N[bytes[i]];
-      let b2 = 0;
-      if (i + 1 < bytes.length) b2 = MAP_F2N[bytes[i+1]];
-      
-      parts.push(SURNAMES[b1]);
-      if (i + 1 < bytes.length) parts.push(NAMES[b2]);
+    for (let i = 0; i < bytes.length; i++) {
+      const b = MAP_F2N[bytes[i]];
+      parts.push(NAMES[b]);
     }
     return parts.join('-');
   };
 
   const namesToBytes = (str) => {
     const parts = str.split('-');
-    const bytes = [];
-    for (let i = 0; i < parts.length; i += 2) {
-      const sName = parts[i];
-      const fName = parts[i+1];
-      
-      let b1 = SURNAMES.indexOf(sName);
-      if (b1 === -1) return null;
-      bytes.push(MAP_N2F[b1]);
-      
-      if (fName) {
-        let b2 = NAMES.indexOf(fName);
-        if (b2 === -1) return null;
-        bytes.push(MAP_N2F[b2]);
-      }
+    const bytes = new Uint8Array(parts.length);
+    for (let i = 0; i < parts.length; i++) {
+      const name = parts[i];
+      const idx = NAMES.indexOf(name);
+      if (idx === -1) return null;
+      bytes[i] = MAP_N2F[idx];
     }
-    return new Uint8Array(bytes);
+    return bytes;
   };
 
   const $ = (id) => document.getElementById(id);
@@ -819,30 +794,22 @@
     const min = String(now.getMinutes()).padStart(2, '0');
     const filename = `${hh}${min}${dd}${mm}.txt`;
 
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
     if (navigator.share && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
       const file = new File([blob], filename, { type: blob.type });
       navigator.share({
         files: [file]
-      }).catch(() => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      });
-    } else {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      }).catch(() => {});
     }
+    
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const doPack = async () => {
@@ -866,16 +833,12 @@
       
       if (document.activeElement === btnTxt) {
         downloadTxt(namesHash);
-        closeModal();
-        editor.value = namesHash;
-        setHash(namesHash);
-        grow();
-      } else {
-        editor.value = namesHash;
-        setHash(namesHash);
-        grow();
-        closeModal();
       }
+      
+      editor.value = namesHash;
+      setHash(namesHash);
+      grow();
+      closeModal();
     } catch { setModalStatus(t.errError, 'err'); }
     finally { lockBtns(false); }
   };
