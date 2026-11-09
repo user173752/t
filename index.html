@@ -27,7 +27,7 @@
     --panel:#1b1813;
     --accent:#d8cfc1;
     --overlay:rgba(0,0,0,.7);
-                --shadow:0 22px 50px -22px rgba(0,0,0,.75);
+    --shadow:0 22px 50px -22px rgba(0,0,0,.75);
     --view:#f0eae0;
   }
   @media (prefers-color-scheme: dark){
@@ -82,6 +82,18 @@
   }
   .bar-left, .bar-right{
     display:flex; align-items:center; gap:14px;
+    flex: 1;
+  }
+  .bar-left {
+    justify-content: flex-start;
+  }
+  .bar-right {
+    justify-content: flex-end;
+  }
+  .bar-center {
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
   .sizer{
     display:flex; align-items:center; gap:2px;
@@ -199,15 +211,6 @@
     border:1px solid var(--line);
     font-family:Georgia,"Times New Roman",serif;
   }
-  .closex{
-    position:absolute; top:8px; right:12px;
-    appearance:none; border:0; background:transparent;
-    color:var(--muted); font-size:20px; line-height:1;
-    padding:4px 6px; cursor:default;
-    font-family:Georgia,"Times New Roman",serif;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .closex:focus{outline:none}
   .passrow{
     display:grid;
     grid-template-columns:60px 1fr auto auto;
@@ -251,7 +254,7 @@
   }
   .modal-status.err{color:#a8442f}
   .modal-status.ok{color:#4a7a3a}
-   .lang, .dl, .help {
+  .lang, .dl, .help {
     appearance:none; 
     border:0 !important; 
     background:transparent !important;
@@ -294,7 +297,7 @@
     padding: 40px 28px 28px;
     text-align: left;
   }
-    .info-text {
+  .info-text {
     font-size: 15px;
     line-height: 1.6;
     margin: 0;
@@ -327,11 +330,15 @@
         <button class="view" id="view" aria-label="Тема">𝓐𝕒</button>
       </div>
     </div>
+    
+    <div class="bar-center">
+      <button class="dl" id="download">🡇</button>
+      <button class="help" id="help">▤</button>
+    </div>
+
     <div class="bar-right">
         <button class="lang" id="lang">𝓔𝓝</button>
-        <button class="dl" id="download">🡇</button>
-        <button class="help" id="help">▤</button>
-        <button class="help" id="donate">🎔</button>
+        <button class="help" id="donate">♥</button>
     </div>
   </div>
 
@@ -360,14 +367,12 @@
 
 <div class="overlay" id="infoModal">
   <div class="modal" role="dialog" aria-modal="true">
-    <button class="closex" id="infoClose" aria-label="Закрыть">×</button>
     <p class="info-text" id="infoText"></p>
   </div>
 </div>
 
 <div class="overlay" id="donateModal">
   <div class="modal" role="dialog" aria-modal="true">
-    <button class="closex" id="donateClose" aria-label="Закрыть">×</button>
     <p class="info-text" id="donateText"></p>
   </div>
 </div>
@@ -710,10 +715,9 @@
       errFail: 'Нет',
       errError: 'Ошибка',
       msgSaved: 'Пользуйся офлайн. Усиль, изменив порядок алфавита в коде',
-      infoText: 'Текстиньо.  Автономный инструмент для упаковки текста в ссылку с шифрованием паролем. Интерфейс, кодирование, сжатие, отрисовка кьюара реализованы внутри одного файла без обращения к внешним ресурсам или серверу. Нет отправки текста, пароля или кодировки на серверы и сторонние сервисы: нет fetch, XHR, WebSocket и внешних библиотек. После загрузки страницы обработка данных выполняется исключительно в браузере. Текст сжимается встроенной реализацией LZ-string-подобного алгоритма, затем преобразовывается через Web Crypto API: AES-256-GCM. Ключ выводится из введённого пароля алгоритмом PBKDF2-HMAC-SHA-256 с 200 000 итераций. Для каждого преобразования генерируются случайные 16-байтная соль и 12-байтный IV. Результат кодируется в Base64 URL-safe и записывается в текстовое поле редактора и во фрагмент адреса после #. При распаковке данные берутся из редактора или адресной строки, пароль проверяется попыткой распаковки; при неверном пароле AES-GCM не проходит проверку целостности. Ссылка фактически становится контейнером зашифрованного сообщения. Кнопка скачивания сохраняет файл приложения и позволяет работать с ним локально, без интернета. Предлагается усилить эффект изменением алфавита в коде. Размер шрифта, выбранный шрифт и тема сохраняются в localStorage. Сам текст и пароль кодом туда не записываются. Фрагмент адреса после # не входит в HTTP-запрос при загрузке страницы, поэтому сам по себе не отправляется серверу. Ссылка с текстом остаётся в адресной строке и может быть скопирована, переслана, сохранена или передана через кьюар. Это не открытый текст, для чтения получателю понадобится пароль.',
+      infoText: 'Текстиньо.  Автономный инструмент для упаковки текста в ссылку с шифрованием паролем. Интерфейс, кодирование, сжатие, отрисовка кьюара реализованы внутри одного файла без обращения к внешним ресурсам или серверу. Нет отправки текста, пароля или кодировки на серверы и сторонние сервисы: нет fetch, XHR, WebSocket и внешних библиотек. После загрузки страницы обработка данных выполняется исключительно в браузере. Текст сжимается встроенной реализацией LZ-string-подобного алгоритма, затем преобразовывается через Web Crypto API: AES-256-GCM. Ключ выводится из введённого пароля алгоритмом PBKDF2-HMAC-SHA-256 с 200 000 итераций. Для каждого преобразования генерируются случайные 16-байтная соль и 12-байтный IV. Результат кодируется в Base64 URL-safe и записывается в текстовое поле редактора и во фрагмент адреса после #. При распаковке данные берутся из редактора или адресной строки, пароль проверяется попыткой распаковки; при неверном пароле AES-GCM не проходит проверку целостности. Ссылка фактически становится контейнером зашифрованного сообщения. Кнопка скачивания сохраняет файл приложения и позволяет работать с ним локально, без интернета. Предлагается усилить эффект изменением алфавита в коде. Размер шрифта, выбранный шрифт и тема сохраняются в localStorage. Сам текст и пароль кодом туда не записываются. Фрагмент адреса после # не входит в HTTP-запрос при загрузке страницы, поэтому сам по себе не отправляется серверу. Ссылка с текстом остаётся в адресной строке и может быть скопирована, переслана, сохранена или передана через кьюар. Это не открытый текст, для чтения получателю понадобится пароль.',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       qrBtn: 'Кьюар'
-
     },
     en: {
       title: 'Textinho. Text in the link',
@@ -748,7 +752,7 @@
     });
     setModalStatus('');
     infoText.textContent = t.infoText;
-            donateText.textContent = t.donateText;
+    donateText.textContent = t.donateText;
   };
 
   langBtn.addEventListener('click', () => {
@@ -916,13 +920,11 @@
   helpBtn.addEventListener('click', () => {
     infoModal.classList.add('open');
   });
-  $('infoClose').addEventListener('click', () => infoModal.classList.remove('open'));
   infoModal.addEventListener('mousedown', (e) => { if (e.target === infoModal) infoModal.classList.remove('open'); });
 
-        $('donate').addEventListener('click', () => {
+  $('donate').addEventListener('click', () => {
     donateModal.classList.add('open');
   });
-  $('donateClose').addEventListener('click', () => donateModal.classList.remove('open'));
   donateModal.addEventListener('mousedown', (e) => { if (e.target === donateModal) donateModal.classList.remove('open'); });
 
   const doPack = async () => {
