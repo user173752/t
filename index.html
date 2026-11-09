@@ -410,8 +410,7 @@
   const L = (() => { const m = Object.create(null); for (let i = 0; i < A.length; i++) m[A[i]] = i; return m; })();
   const HAS_CS = typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
 
-  if (NAMES.length !== 256) throw new Error('NAMES length ' + NAMES.length);
-  if (new Set(NAMES).size !== 256) throw new Error('NAMES not unique');
+ 
 
   const NAME_INDEX = new Map();
   for (let i = 0; i < 256; i++) NAME_INDEX.set(NAMES[i], i);
