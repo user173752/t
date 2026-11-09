@@ -57,8 +57,7 @@
     -webkit-font-smoothing:antialiased;
     transition:background-color .3s ease, color .3s ease;
     overflow-y:auto;
-    overscroll-behavior-y: none;
-
+    overscroll-behavior-y:none;
   }
   body.modal-open { overflow: hidden; }
   .wrap{
@@ -390,26 +389,32 @@
     "Konstantin","Lavr","Leontiy","Lyubomir","Maksim","Maksimilian","Antip","Marty",
     "Mecheslav","Mefodiy","Miley","Miroslav","Mihail","Modest",
     "Anna","Olga","Vera","Masha","Dasha","Katya","Tanya","Sveta","Lena","Yana",
-    "Rima","Zoy","Nina","Lida","Galy","Tony","Nady","Sony","Klava","Mira",
-    "Lera","Vika","Dina","Poly","Rita","Sima","Olya","Asya","Inna","Ray",
-    "Fay","Zina","Liza","Mila","Ulya","Yulya","Yuly","Oksana","Alina","Vlada",
-    "Darya","Marina","Larisa","Nataly","Kseniya","Nika","Alisa","Eva","Maya","Varya",
-    "Sofy","Kira","Vasilisa","Ulyana","Anastasiya","Valeriya","Kristina","Viktoriya","Ekaterina","Evgeniya",
-    "Lybov","Nadezhda","Lyudmila","Svetlana","Tatyana","Galina","Valentina","Nina","Raisa","Zinaida",
-    "Tamara","Alla","Emma","Elza","Ada","Aza","Aza","Liya","Lola","Nell",
-    "Nora","Roza","Ruta","Sara","Sofa","Faina","Flora","Elvira","Yuna","Yana",
-    "Alena","Alina","Alisa","Alla","Anastasia","Angelina","Anzhelika","Ariadna","Arina","Asya",
-    "Bella","Berta","Bogdana","Valentina","Valeriya","Vanda","Varvara","Vasilisa","Vera","Veronika",
-    "Viktoriya","Violetta","Vita","Vlada","Vladislava","Vlada","Galina","Gella","Darya","Diana",
-    "Dina","Eva","Evgeniya","Evdokiya","Ekaterina","Elena","Elizaveta","Elmira","Elvira","Emiliya",
-    "Erika","Esfir","Yva","Yva","Zhanna","Zarina","Zinaida","Zoya","Zulfiya","Inessa",
-    "Inna","Iraida","Irina","Iya","Kapitolina","Karina","Kira","Klavdiya","Kristina","Kseniya"
-  ].slice(0, 256);
+    "Rima","Zoya","Nina","Lida","Galya","Tonya","Nadya","Sonya","Klava","Mira",
+    "Lera","Vika","Dina","Polya","Rita","Sima","Olya","Asya","Inna","Raya",
+    "Faya","Zina","Liza","Mila","Ulya","Yulia","Oksana","Alina","Vlada",
+    "Daria","Marina","Larisa","Natalia","Ksenia","Nika","Alisa","Eva","Maya","Varya",
+    "Sofia","Kira","Vasilisa","Ulyana","Anastasia","Valeria","Kristina","Viktoria","Ekaterina","Evgenia",
+    "Lyubov","Nadezhda","Lyudmila","Svetlana","Tatyana","Galina","Valentina","Raisa","Zinaida",
+    "Tamara","Alla","Emma","Elza","Ada","Liya","Lola","Nell",
+    "Nora","Roza","Ruta","Sara","Faina","Flora","Elvira","Yuna",
+    "Alena","Angelina","Anzhelika","Ariadna","Arina",
+    "Bella","Berta","Bogdana","Vanda","Varvara","Veronika",
+    "Violetta","Vita","Vladislava","Gella","Diana",
+    "Evdokiya","Elmira","Emiliya",
+    "Erika","Esfir","Zhanna","Zarina","Zulfiya","Inessa",
+    "Iraida","Iya","Kapitolina","Karina","Klavdiya"
+  ];
 
   const MAX_URL_LEN = 5000;
-  const A = 'KQRBNabcdefgh12345678x=+#-KQRBNabcdefgh12345678x=+#-_';
+  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
   const L = (() => { const m = Object.create(null); for (let i = 0; i < A.length; i++) m[A[i]] = i; return m; })();
   const HAS_CS = typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
+
+  if (NAMES.length !== 256) throw new Error('NAMES length ' + NAMES.length);
+  if (new Set(NAMES).size !== 256) throw new Error('NAMES not unique');
+
+  const NAME_INDEX = new Map();
+  for (let i = 0; i < 256; i++) NAME_INDEX.set(NAMES[i], i);
 
   const te = new TextEncoder();
   const td = new TextDecoder();
@@ -614,8 +619,8 @@
     const parts = str.split('-');
     const bytes = new Uint8Array(parts.length);
     for (let i = 0; i < parts.length; i++) {
-      const idx = NAMES.indexOf(parts[i]);
-      if (idx === -1) return null;
+      const idx = NAME_INDEX.get(parts[i]);
+      if (idx === undefined) return null;
       bytes[i] = idx;
     }
     return bytes;
@@ -903,13 +908,7 @@
     lockBtns(true);
     setModalStatus('…');
     try {
-      let bytes;
-      if (raw.includes('-')) {
-        bytes = namesToBytes(raw);
-      } else {
-        bytes = bu8(raw);
-      }
-      
+      const bytes = namesToBytes(raw);
       if (!bytes) {
         setModalStatus(t.errFail, 'err');
         return;
