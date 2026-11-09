@@ -2,7 +2,7 @@
 <html lang="ru" data-theme="auto">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
 <title>Tx</title>
@@ -16,7 +16,6 @@
     --accent:#2b2620;
     --overlay:rgba(43,38,32,.4);
     --shadow:0 20px 44px -20px rgba(60,45,20,.28);
-    --view:#2b2620;
   }
   [data-theme="dark"]{
     --bg:#14120f;
@@ -28,7 +27,6 @@
     --accent:#d8cfc1;
     --overlay:rgba(0,0,0,.7);
     --shadow:0 22px 50px -22px rgba(0,0,0,.75);
-    --view:#f0eae0;
   }
   @media (prefers-color-scheme: dark){
     [data-theme="auto"]{
@@ -41,7 +39,6 @@
       --accent:#d8cfc1;
       --overlay:rgba(0,0,0,.7);
       --shadow:0 22px 50px -22px rgba(0,0,0,.75);
-      --view:#f0eae0;
     }
   }
   *{box-sizing:border-box}
@@ -207,7 +204,7 @@
   }
   .passrow{
     display:grid;
-    grid-template-columns:60px 1fr auto auto;
+    grid-template-columns:60px 1fr auto;
     gap:10px; align-items:stretch;
   }
   .passrow .pw{
@@ -231,17 +228,6 @@
   .passrow .act[disabled]{opacity:.4}
   .passrow .act.pack{background:var(--accent); color:var(--bg); border-color:var(--accent)}
   .passrow .act.pack:hover{opacity:.85}
-  .passrow .act.txt-btn.active {
-    background: var(--muted);
-    color: var(--bg);
-    border-color: var(--muted);
-  }
-  .passrow .txt-btn {
-    font-size: 14px;
-    font-weight: 400;
-    padding: 0 10px;
-    letter-spacing: 0;
-  }
   .modal-status{
     margin-top:16px; font-size:13px; color:var(--muted); min-height:18px;
     text-align:center;
@@ -257,7 +243,6 @@
     text-align:center; line-height:1.4; max-width:80%;
   }
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-  
   #infoModal .modal, #donateModal .modal {
     display: flex;
     flex-direction: column;
@@ -283,7 +268,6 @@
   .info-text::-webkit-scrollbar {
     display: none;
   }
-  
   @media (max-width: 600px) {
     .bar {
       flex-direction: column;
@@ -300,17 +284,19 @@
       justify-content: space-between;
     }
     .passrow {
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: 1fr auto;
       grid-template-areas: 
-        "pw pw pw"
-        "unpack txt pack";
+        "pw pw"
+        "unpack pack";
       gap: 10px;
     }
     .passrow .pw { grid-area: pw; }
     #btnUnpack { grid-area: unpack; }
-    #btnTxt { grid-area: txt; }
     #btnPack { grid-area: pack; }
     
+    .foot {
+      justify-content: space-between;
+    }
     .foot .copy-text {
       display: block;
     }
@@ -350,7 +336,6 @@
     <div class="passrow">
       <button class="act" id="btnUnpack">↶</button>
       <input class="pw" id="pw" type="text" maxlength="10" placeholder="••••••••••" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="nope-please-ignore" aria-label="Поле">
-      <button class="act txt-btn" id="btnTxt">.txt</button>
       <button class="act pack" id="btnPack">→</button>
     </div>
     <div class="modal-status" id="modalStatus" aria-live="polite"></div>
@@ -536,7 +521,6 @@
   const modalStatus = $('modalStatus');
   const btnPack = $('btnPack');
   const btnUnpack = $('btnUnpack');
-  const btnTxt = $('btnTxt');
   const view = $('view');
   const fontwrap = $('fontwrap');
   const fontMenu = $('fontMenu');
@@ -731,7 +715,7 @@
     if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
   });
 
-  const lockBtns = (on) => { btnPack.disabled = on; btnUnpack.disabled = on; btnTxt.disabled = on; };
+  const lockBtns = (on) => { btnPack.disabled = on; btnUnpack.disabled = on; };
 
   const setHash = (hash) => {
     try { history.replaceState(null, '', hash ? '#' + hash : location.pathname + location.search); } catch {}
@@ -768,26 +752,6 @@
     }
   });
 
-  const downloadTxt = (content) => {
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const now = new Date();
-    const dd = String(now.getDate()).padStart(2, '0');
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const hh = String(now.getHours()).padStart(2, '0');
-    const min = String(now.getMinutes()).padStart(2, '0');
-    const filename = `${hh}${min}${dd}${mm}.txt`;
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
-
   const doPack = async () => {
     const text = editor.value;
     const pw = pwInput.value;
@@ -803,22 +767,23 @@
       
       const namesHash = bytesToNames(rawHash);
       
-      if (document.activeElement === btnTxt) {
-        downloadTxt(namesHash);
-      }
-      
       editor.value = namesHash;
       grow();
+      closeModal();
       
       if (namesHash.length > MAX_URL_LEN) {
         setHash('');
-        setModalStatus(t.errLong, 'err');
+        setTimeout(() => {
+          toastEl.textContent = t.errLong;
+          toastEl.classList.add('show');
+          setTimeout(() => toastEl.classList.remove('show'), 4000);
+        }, 100);
       } else {
         setHash(namesHash);
-        closeModal();
       }
-    } catch { setModalStatus(t.errError, 'err'); }
-    finally { lockBtns(false); }
+    } catch { 
+      setModalStatus(t.errError, 'err');
+    } finally { lockBtns(false); }
   };
 
   const doUnpack = async () => {
@@ -857,7 +822,6 @@
 
   btnPack.addEventListener('click', doPack);
   btnUnpack.addEventListener('click', doUnpack);
-  btnTxt.addEventListener('click', doPack);
   pwInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); doPack(); }
   });
