@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
-<title>T</title>
+<title>Tx</title>
 <style>
   :root{
     --bg:#f6f1e7;
@@ -69,79 +69,72 @@
     display:flex;
     flex-direction:column;
   }
+
   .bar{
     display:flex; align-items:center; justify-content:space-between;
-    gap:20px; margin-bottom:26px;
+    gap:24px; margin-bottom:36px;
     font-size:15px; color:var(--muted);
     user-select:none;
-    padding-bottom:16px;
+    padding-bottom:20px;
     border-bottom:1px solid var(--line);
     position:relative;
     z-index:30;
     flex:0 0 auto;
   }
-   .bar-left, .bar-right{
-    display:flex; align-items:center; gap:14px;
-  }
   .bar-left {
-    flex: 1;
-    justify-content: flex-start;
-  }
-  .bar-right {
-    flex: 1;
-    justify-content: flex-end;
-  }
-  .bar-center {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 20px;
   }
+  .bar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .divider {
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    margin: 0 10px;
+  }
+
   .sizer{
     display:flex; align-items:center; gap:2px;
   }
   .sizer button{
     appearance:none; border:0; background:transparent;
     color:var(--muted); font:inherit;
-    font-size:26px; line-height:1;
-    width:30px; height:32px;
+    font-size:24px; line-height:1;
+    width:28px; height:30px;
     display:grid; place-items:center;
     padding:0; cursor:default;
+    transition: color 0.2s;
   }
+  .sizer button:hover { color: var(--text); }
   .sizer button:focus{outline:none}
+
+  .text-btn {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1;
+    padding: 0;
+    cursor: default;
+    transition: color 0.2s;
+  }
+  .text-btn:hover { color: var(--text); }
+  .text-btn:focus { outline: none; }
+  .lang { font-style: italic; }
+
   .fontwrap{
     position:relative;
     display:inline-flex; align-items:center;
   }
-  .fontwrap .glyph{
-    color:var(--muted);
-    font-family:Georgia,"Times New Roman",serif;
-    font-size:20px; line-height:1;
-    user-select:none;
-    padding:0;
-    background:none;
-    border:0;
-    cursor:default;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .fontwrap .glyph:focus{outline:none}
-  .fontwrap .glyph::selection{background:transparent}
-  .view{
-    appearance:none; border:0;
-    background:var(--muted);
-    color:var(--bg);
-    padding:2px 6px;
-    border-radius:4px;
-    cursor:default;
-    font-family:Georgia,"Times New Roman",serif;
-    font-size:20px; 
-    line-height:1.2;
-    letter-spacing:-.02em;
-    margin-left:10px;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .view:focus{outline:none}
   .fontmenu{
-    position:absolute; top:calc(100% + 12px); left:-14px;
+    position:absolute; top:calc(100% + 12px); left:0;
     background:var(--panel);
     border:1px solid var(--line);
     border-radius:10px;
@@ -167,6 +160,7 @@
   }
   .fontmenu button:hover{background:rgba(127,127,127,.12)}
   .fontmenu button.active{color:var(--accent); font-weight:700}
+
   .editor{
     width:100%;
     flex:1 1 auto;
@@ -255,23 +249,6 @@
   }
   .modal-status.err{color:#a8442f}
   .modal-status.ok{color:#4a7a3a}
-  .lang, .dl, .help {
-    appearance:none; 
-    border:0 !important; 
-    background:transparent !important;
-    color:var(--muted); 
-    font-family:Georgia,"Times New Roman",serif;
-    font-size:22px; 
-    line-height:1; 
-    padding:0; 
-    cursor:default;
-    display:inline-flex; 
-    align-items:center; 
-    justify-content:center;
-    border-radius:0;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .lang:focus, .dl:focus, .help:focus{outline:none}
   .toast {
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--panel); color:var(--text); border:1px solid var(--line);
@@ -326,17 +303,19 @@
         <button id="inc" aria-label="Больше">+</button>
       </div>
       <div class="fontwrap" id="fontwrap">
-        <button type="button" class="glyph" id="fontGlyph" aria-label="Шрифт">𝓐𝕒</button>
+        <button class="text-btn" id="fontToggle">Шрифт</button>
         <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
-        <button class="view" id="view" aria-label="Тема">𝓐𝕒</button>
       </div>
+      <button class="text-btn" id="view">Тема</button>
     </div>
-    
+
+    <div class="divider"></div>
+
     <div class="bar-right">
-        <button class="dl" id="download">🡇</button>
-        <button class="help" id="help">▤</button>
-        <button class="help" id="donate">ℬ</button>
-        <button class="lang" id="lang">𝓔𝓝</button>
+      <button class="text-btn" id="download">Скачать</button>
+      <button class="text-btn" id="infoBtn">Инфо</button>
+      <button class="text-btn" id="donateBtn">Биток</button>
+      <button class="text-btn lang" id="lang">English</button>
     </div>
   </div>
 
@@ -675,10 +654,11 @@
   const view = $('view');
   const fontwrap = $('fontwrap');
   const fontMenu = $('fontMenu');
-  const fontGlyph = $('fontGlyph');
+  const fontToggle = $('fontToggle');
   const langBtn = $('lang');
   const downloadBtn = $('download');
-  const helpBtn = $('help');
+  const infoBtn = $('infoBtn');
+  const donateBtn = $('donateBtn');
   const toastEl = $('toast');
   const qrModal = $('qrModal');
   const qrCanvas = $('qrCanvas');
@@ -742,7 +722,13 @@
     btnPack.title = t.packTitle;
     btnUnpack.title = t.unpackTitle;
     btnQr.textContent = t.qrBtn;
-    langBtn.textContent = isEN ? '𝓅𝓎' : '𝓁𝓃';
+    
+    infoBtn.textContent = isEN ? 'Info' : 'Инфо';
+    donateBtn.textContent = isEN ? 'Bitok' : 'Биток';
+    fontToggle.textContent = isEN ? 'Font' : 'Шрифт';
+    view.textContent = isEN ? 'Theme' : 'Тема';
+    downloadBtn.textContent = isEN ? 'Download' : 'Скачать';
+    langBtn.textContent = isEN ? 'Русский' : 'English';
     
     fontMenu.querySelectorAll('button').forEach(b => {
       const f = FONTS.find(x => x.stack === b.dataset.stack);
@@ -787,7 +773,7 @@
   const closeMenu = () => { fontMenu.classList.remove('open'); fontwrap.classList.remove('open'); };
   const toggleMenu = () => { if (fontMenu.classList.contains('open')) closeMenu(); else openMenu(); };
 
-  fontGlyph.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
+  fontToggle.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(); });
   document.addEventListener('click', (e) => { if (!fontwrap.contains(e.target)) closeMenu(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 
@@ -915,12 +901,12 @@
     btnQr.classList.toggle('active');
   });
 
-  helpBtn.addEventListener('click', () => {
+  infoBtn.addEventListener('click', () => {
     infoModal.classList.add('open');
   });
   infoModal.addEventListener('mousedown', (e) => { if (e.target === infoModal) infoModal.classList.remove('open'); });
 
-  $('donate').addEventListener('click', () => {
+  donateBtn.addEventListener('click', () => {
     donateModal.classList.add('open');
   });
   donateModal.addEventListener('mousedown', (e) => { if (e.target === donateModal) donateModal.classList.remove('open'); });
@@ -1003,7 +989,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'T.html';
+    a.download = 'TEXTINHO.html';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
