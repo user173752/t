@@ -309,10 +309,10 @@
     <div class="divider"></div>
 
     <div class="bar-right">
-      <button class="text-btn" id="download">Скачать</button>
+      <button class="text-btn" id="download">Изолировать</button>
       <button class="text-btn" id="infoBtn">Инфо</button>
       <button class="text-btn" id="donateBtn">Биток</button>
-      <button class="text-btn lang" id="lang">English</button>
+      <button class="text-btn lang" id="lang">Eng</button>
     </div>
   </div>
 
@@ -721,11 +721,11 @@
     btnQr.textContent = t.qrBtn;
     
     infoBtn.textContent = isEN ? 'Info' : 'Инфо';
-    donateBtn.textContent = isEN ? 'Bitok' : 'Биток';
+    donateBtn.textContent = isEN ? 'Bitcoin' : 'Биток';
     fontToggle.textContent = isEN ? 'Font' : 'Шрифт';
     view.textContent = isEN ? 'Theme' : 'Тема';
-    downloadBtn.textContent = isEN ? 'Download' : 'Скачать';
-    langBtn.textContent = isEN ? 'Русский' : 'English';
+    downloadBtn.textContent = isEN ? 'Download' : 'Изолировать';
+    langBtn.textContent = isEN ? 'Русский' : 'Eng';
     
     fontMenu.querySelectorAll('button').forEach(b => {
       const f = FONTS.find(x => x.stack === b.dataset.stack);
