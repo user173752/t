@@ -2,7 +2,7 @@
 <html lang="ru" data-theme="auto">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
 <title>Tx</title>
@@ -61,6 +61,7 @@
     transition:background-color .3s ease, color .3s ease;
     overflow-y:auto;
   }
+  body.modal-open { overflow: hidden; }
   .wrap{
     max-width:680px; margin:0 auto;
     padding:46px 30px 120px;
@@ -90,7 +91,6 @@
     align-items: center;
     gap: 20px;
   }
-
   .sizer{
     display:flex; align-items:center; gap:2px;
   }
@@ -105,7 +105,6 @@
     transition: color 0.2s;
   }
   .sizer button:focus{outline:none}
-
   .text-btn {
     appearance: none;
     border: 0;
@@ -120,7 +119,6 @@
   }
   .text-btn:focus { outline: none; }
   .lang { font-style: italic; }
-
   .fontwrap{
     position:relative;
     display:inline-flex; align-items:center;
@@ -151,7 +149,6 @@
     -webkit-tap-highlight-color:transparent;
   }
   .fontmenu button.active{color:var(--accent); font-weight:700}
-
   .editor{
     width:100%;
     flex:1 1 auto;
@@ -170,6 +167,7 @@
     display:flex; align-items:center; justify-content:flex-end;
     margin-top:44px;
     flex:0 0 auto;
+    gap: 15px;
   }
   .foot .convert{
     appearance:none; border:0; background:transparent;
@@ -181,6 +179,16 @@
     -webkit-tap-highlight-color:transparent;
   }
   .foot .convert:focus{outline:none}
+  .foot .copy-text {
+    display: none;
+    appearance:none; border:0; background:transparent;
+    color:var(--muted); font:inherit;
+    font-family: monospace;
+    font-size: 15px;
+    padding: 0;
+    cursor: default;
+    -webkit-tap-highlight-color:transparent;
+  }
   .overlay{
     position:fixed; inset:0; background:var(--overlay);
     display:none; align-items:center; justify-content:center;
@@ -265,6 +273,7 @@
     align-items: flex-start;
     padding: 40px 28px 28px;
     text-align: left;
+    max-height: 90vh;
   }
   .info-text {
     font-size: 15px;
@@ -283,6 +292,38 @@
   .info-text::-webkit-scrollbar {
     display: none;
   }
+  
+  @media (max-width: 600px) {
+    .bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    .bar-right {
+      order: -1;
+      width: 100%;
+      justify-content: space-between;
+    }
+    .bar-left {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .passrow {
+      grid-template-columns: 1fr auto auto;
+      grid-template-areas: 
+        "pw pw pw"
+        "unpack qr pack";
+      gap: 10px;
+    }
+    .passrow .pw { grid-area: pw; }
+    #btnUnpack { grid-area: unpack; }
+    #btnQr { grid-area: qr; }
+    #btnPack { grid-area: pack; }
+    
+    .foot .copy-text {
+      display: block;
+    }
+  }
 </style>
 </head>
 <body>
@@ -290,17 +331,13 @@
   <div class="bar">
     <div class="bar-left">
       <button class="text-btn" id="dec" aria-label="Меньше">−</button>
-      
       <div class="fontwrap" id="fontwrap">
         <button class="text-btn" id="fontToggle">Шрифт</button>
         <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
       </div>
-
       <button class="text-btn" id="inc" aria-label="Больше">+</button>
-      
       <button class="text-btn" id="view">Тема</button>
     </div>
-
     <div class="bar-right">
       <button class="text-btn" id="download">Изолировать</button>
       <button class="text-btn" id="infoBtn">Инфо</button>
@@ -312,13 +349,14 @@
   <textarea class="editor" id="editor" placeholder="Ввод..." spellcheck="false"></textarea>
 
   <div class="foot">
+    <button class="copy-text" id="copyEditor">Скопировать</button>
     <button class="convert" id="go" aria-label="Преобразовать">#</button>
   </div>
 </div>    
       
 <div class="overlay" id="overlay">
   <div class="modal" role="dialog" aria-modal="true">
-      <div class="passrow">
+    <div class="passrow">
       <button class="act" id="btnUnpack">↶</button>
       <input class="pw" id="pw" type="text" maxlength="10" placeholder="••••••••••" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="nope-please-ignore" aria-label="Поле">
       <button class="act qr-btn" id="btnQr">Кьюар</button>
@@ -685,7 +723,8 @@
       msgSaved: 'Пользуйся офлайн. Усиль, изменив порядок алфавита в коде',
       infoText: 'Текстиньо.  Автономный инструмент для упаковки текста в ссылку с шифрованием паролем. Интерфейс, кодирование, сжатие, отрисовка кьюара реализованы внутри одного файла без обращения к внешним ресурсам или серверу. Нет отправки текста, пароля или кодировки на серверы и сторонние сервисы: нет fetch, XHR, WebSocket и внешних библиотек. После загрузки страницы обработка данных выполняется исключительно в браузере. Текст сжимается встроенной реализацией LZ-string-подобного алгоритма, затем преобразовывается через Web Crypto API: AES-256-GCM. Ключ выводится из введённого пароля алгоритмом PBKDF2-HMAC-SHA-256 с 200 000 итераций. Для каждого преобразования генерируются случайные 16-байтная соль и 12-байтный IV. Результат кодируется в Base64 URL-safe и записывается в текстовое поле редактора и во фрагмент адреса после #. При распаковке данные берутся из редактора или адресной строки, пароль проверяется попыткой распаковки; при неверном пароле AES-GCM не проходит проверку целостности. Ссылка фактически становится контейнером зашифрованного сообщения. Кнопка скачивания сохраняет файл приложения и позволяет работать с ним локально, без интернета. Предлагается усилить эффект изменением алфавита в коде. Размер шрифта, выбранный шрифт и тема сохраняются в localStorage. Сам текст и пароль кодом туда не записываются. Фрагмент адреса после # не входит в HTTP-запрос при загрузке страницы, поэтому сам по себе не отправляется серверу. Ссылка с текстом остаётся в адресной строке и может быть скопирована, переслана, сохранена или передана через кьюар. Это не открытый текст, для чтения получателю понадобится пароль.',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
-      qrBtn: 'Кьюар'
+      qrBtn: 'Кьюар',
+      copyText: 'Скопировать'
     },
     en: {
       title: 'Textinho. Text in the link',
@@ -700,7 +739,8 @@
       msgSaved: 'Use offline. Enhance by changing the alphabet order in the code',
       infoText: 'Textinho. Autonomous. The interface, encoding, compression, and QR-code rendering are implemented in a single file, with no calls to external resources or servers. No text, password, or encoded data is sent to servers or third-party services: there are no fetch, XHR, or WebSocket requests and no external libraries. Once the page has loaded, all data processing takes place exclusively in the browser.The text is compressed using a built-in LZ-string-like algorithm, then transformed through the Web Crypto API using AES-256-GCM. The key is derived from the entered password using PBKDF2-HMAC-SHA-256 with 200,000 iterations. A random 16-byte salt and a 12-byte IV are generated for each transformation. The result is encoded in URL-safe Base64 and placed in the editor’s text field and in the URL fragment after #.When unpacking, data is taken from the editor or the address bar. The password is checked by attempting to unpack the data; with an incorrect password, AES-GCM fails its integrity check. The download button saves the application file, allowing it to be used locally without an internet connection. The app suggests enhancing the effect by changing the alphabet in the code.The font size, selected font, and theme are saved in localStorage. The code does not store the text or password there. The URL fragment after # is not included in the HTTP request when the page loads, so it is not sent to the server by itself. A link containing the text remains in the address bar and can be copied, forwarded, saved, or shared via QR code. It is not plain text; the recipient needs the password to read it.',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
-      qrBtn: 'QR'
+      qrBtn: 'QR',
+      copyText: 'Copy'
     }
   };
 
@@ -712,6 +752,7 @@
     btnPack.title = t.packTitle;
     btnUnpack.title = t.unpackTitle;
     btnQr.textContent = t.qrBtn;
+    $('copyEditor').textContent = t.copyText;
     
     infoBtn.textContent = isEN ? 'Info' : 'Инфо';
     donateBtn.textContent = isEN ? 'Bitcoin' : 'Биток';
@@ -816,11 +857,15 @@
 
   const openModal = () => {
     overlay.classList.add('open');
+    document.body.classList.add('modal-open');
     setModalStatus('');
     pwInput.value = '';
     setTimeout(() => pwInput.focus(), 50);
   };
-  const closeModal = () => overlay.classList.remove('open');
+  const closeModal = () => {
+    overlay.classList.remove('open');
+    document.body.classList.remove('modal-open');
+  };
 
   overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) closeModal(); });
   document.addEventListener('keydown', (e) => {
@@ -893,13 +938,25 @@
 
   infoBtn.addEventListener('click', () => {
     infoModal.classList.add('open');
+    document.body.classList.add('modal-open');
   });
-  infoModal.addEventListener('mousedown', (e) => { if (e.target === infoModal) infoModal.classList.remove('open'); });
+  infoModal.addEventListener('mousedown', (e) => { 
+    if (e.target === infoModal) {
+      infoModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
+    }
+  });
 
   donateBtn.addEventListener('click', () => {
     donateModal.classList.add('open');
+    document.body.classList.add('modal-open');
   });
-  donateModal.addEventListener('mousedown', (e) => { if (e.target === donateModal) donateModal.classList.remove('open'); });
+  donateModal.addEventListener('mousedown', (e) => { 
+    if (e.target === donateModal) {
+      donateModal.classList.remove('open');
+      document.body.classList.remove('modal-open');
+    }
+  });
 
   const doPack = async () => {
     const text = editor.value;
@@ -920,8 +977,16 @@
     
       if (btnQr.classList.contains('active')) {
         const futureUrl = location.origin + location.pathname + '#' + hash;
+        
+        if (navigator.share) {
+          navigator.share({ url: futureUrl }).catch(() => {});
+        } else {
+          try { await navigator.clipboard.writeText(futureUrl); } catch {}
+        }
+        
         drawQR(futureUrl);
         qrModal.classList.add('open');
+        document.body.classList.add('modal-open');
         btnQr.classList.remove('active'); 
         closeModal();
       } else {
@@ -972,6 +1037,19 @@
   }
 
   applyLang('ru');
+
+  $('copyEditor').addEventListener('click', async () => {
+    const text = editor.value;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      toastEl.textContent = isEN ? 'Copied' : 'Скопировано';
+    } catch {
+      toastEl.textContent = isEN ? 'Error' : 'Ошибка';
+    }
+    toastEl.classList.add('show');
+    setTimeout(() => toastEl.classList.remove('show'), 2000);
+  });
 
   downloadBtn.addEventListener('click', () => {
     const html = '<!doctype html>\n' + document.documentElement.outerHTML;
