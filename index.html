@@ -49,7 +49,10 @@
   html{height:100%}
   body{
     margin:0;
-    min-height:100vh;
+    height:100dvh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
     background:
       radial-gradient(1200px 700px at 50% -10%, var(--bg-2), transparent 60%),
       var(--bg);
@@ -59,17 +62,19 @@
     font-family:Georgia,"Times New Roman",serif;
     -webkit-font-smoothing:antialiased;
     transition:background-color .3s ease, color .3s ease;
-    overflow-y:auto;
     overscroll-behavior-y:none;
   }
   body.modal-open { overflow: hidden; }
   .wrap{
-    max-width:680px; margin:0 auto;
+    width:100%;
+    max-width:680px;
+    margin:0 auto;
     padding:46px 30px 24px;
-    position:relative;
-    min-height:100dvh;
     display:flex;
     flex-direction:column;
+    flex:1 1 auto;
+    min-height:0;
+    position:relative;
   }
   .bar{
     display:flex; align-items:center; justify-content:space-between;
@@ -82,51 +87,31 @@
     z-index:30;
     flex:0 0 auto;
   }
-  .bar-left {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  .bar-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  .sizer{
-    display:flex; align-items:center; gap:2px;
-  }
+  .bar-left { display:flex; align-items:center; gap:20px; }
+  .bar-right { display:flex; align-items:center; gap:20px; }
+  .sizer{ display:flex; align-items:center; gap:2px; }
   .sizer button{
     appearance:none; border:0; background:transparent;
     color:var(--muted);
-    font-family: monospace;
+    font-family:monospace;
     font-size:24px; line-height:1;
     width:28px; height:30px;
     display:grid; place-items:center;
     padding:0; cursor:default;
-    transition: color 0.2s;
+    transition:color .2s;
   }
   .sizer button:focus{outline:none}
-  .text-btn {
-    appearance: none;
-    border: 0;
-    background: transparent;
-    color: var(--muted);
-    font-family: monospace !important;
-    font-size: 15px;
-    line-height: 1;
-    padding: 0;
-    cursor: default;
-    transition: color 0.2s;
+  .text-btn{
+    appearance:none; border:0; background:transparent;
+    color:var(--muted);
+    font-family:monospace !important;
+    font-size:15px; line-height:1;
+    padding:0; cursor:default;
+    transition:color .2s;
   }
-  .text-btn:focus { outline: none; }
-  .fontwrap{
-    position:relative;
-    display:inline-flex; align-items:center;
-  }
-  .menuwrap{
-    position:relative;
-    display:inline-flex; align-items:center;
-  }
+  .text-btn:focus{outline:none}
+  .fontwrap{ position:relative; display:inline-flex; align-items:center; }
+  .menuwrap{ position:relative; display:inline-flex; align-items:center; }
   .fontmenu{
     position:absolute; top:calc(100% + 12px); left:0;
     background:var(--panel);
@@ -166,39 +151,40 @@
     overflow-y:auto;
     position:relative;
     z-index:1;
+    -webkit-overflow-scrolling:touch;
   }
   .editor::placeholder{color:var(--muted); font-style:italic; opacity:.7}
- .foot{
-  display:flex; align-items:center;
-  margin-top:44px;
-  flex:0 0 auto;
-  position:relative;
-  min-height:44px;
-}
-.foot .convert{
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  appearance:none; border:0; background:transparent;
-  color:var(--muted);
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:15px; font-weight:400; line-height:1; letter-spacing:0;
-  padding:6px 10px; cursor:default;
-  -webkit-tap-highlight-color:transparent;
-  white-space:nowrap;
-}
-.foot .convert:focus{outline:none}
-.foot .copy-text {
-  display: none;
-  appearance:none; border:0; background:transparent;
-  color:var(--muted); font:inherit;
-  font-family: monospace;
-  font-size: 15px;
-  padding: 0;
-  cursor: default;
-  -webkit-tap-highlight-color:transparent;
-  margin-right:auto;
-}
+  .foot{
+    display:flex; align-items:center;
+    margin-top:32px;
+    flex:0 0 auto;
+    position:relative;
+    min-height:44px;
+  }
+  .foot .convert{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    appearance:none; border:0; background:transparent;
+    color:var(--muted);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:15px; font-weight:400; line-height:1; letter-spacing:0;
+    padding:6px 10px; cursor:default;
+    -webkit-tap-highlight-color:transparent;
+    white-space:nowrap;
+  }
+  .foot .convert:focus{outline:none}
+  .foot .copy-text{
+    display:none;
+    appearance:none; border:0; background:transparent;
+    color:var(--muted); font:inherit;
+    font-family:monospace;
+    font-size:15px;
+    padding:0;
+    cursor:default;
+    -webkit-tap-highlight-color:transparent;
+    margin-right:auto;
+  }
   .overlay{
     position:fixed; inset:0; background:var(--overlay);
     display:none; align-items:center; justify-content:center;
@@ -235,7 +221,7 @@
     border:1px solid var(--line); background:transparent; color:var(--text);
     border-radius:8px;
     -webkit-tap-highlight-color:transparent;
-    padding: 0 12px;
+    padding:0 12px;
   }
   .passrow .act:hover{border-color:var(--text)}
   .passrow .act[disabled]{opacity:.4}
@@ -247,7 +233,7 @@
   }
   .modal-status.err{color:#a8442f}
   .modal-status.ok{color:#4a7a3a}
-  .toast {
+  .toast{
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--panel); color:var(--text); border:1px solid var(--line);
     padding:12px 20px; border-radius:8px; box-shadow:var(--shadow);
@@ -255,61 +241,56 @@
     transition:opacity .3s ease, transform .3s ease; z-index:100;
     text-align:center; line-height:1.4; max-width:80%;
   }
-  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-  #infoModal .modal, #donateModal .modal {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 40px 28px 28px;
-    text-align: left;
-    max-height: 90vh;
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  #infoModal .modal, #donateModal .modal{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    padding:40px 28px 28px;
+    text-align:left;
+    max-height:90vh;
   }
-  .info-text {
-    font-size: 15px;
-    line-height: 1.6;
-    margin: 0;
-    color: var(--text);
-    text-align: left;
-    width: 100%;
-    word-break: break-word;
-    overflow-wrap: break-word;
-    overflow-y: auto;
-    padding-right: 8px;
-    max-height: 65vh;
-    scrollbar-width: none;
+  .info-text{
+    font-size:15px;
+    line-height:1.6;
+    margin:0;
+    color:var(--text);
+    text-align:left;
+    width:100%;
+    word-break:break-word;
+    overflow-wrap:break-word;
+    overflow-y:auto;
+    padding-right:8px;
+    max-height:65vh;
+    scrollbar-width:none;
   }
-  .info-text::-webkit-scrollbar {
-    display: none;
-  }
-  @media (max-width: 600px) {
-    .bar {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 15px;
+  .info-text::-webkit-scrollbar{ display:none; }
+  @media (max-width:600px){
+    .bar{
+      flex-direction:column;
+      align-items:flex-start;
+      gap:15px;
     }
-    .bar-right {
-      order: -1;
-      width: 100%;
-      justify-content: space-between;
+    .bar-right{
+      order:-1;
+      width:100%;
+      justify-content:space-between;
     }
-    .bar-left {
-      width: 100%;
-      justify-content: space-between;
+    .bar-left{
+      width:100%;
+      justify-content:space-between;
     }
-    .passrow {
-      grid-template-columns: 1fr auto;
+    .passrow{
+      grid-template-columns:1fr auto;
       grid-template-areas:
         "pw pw"
         "unpack pack";
-      gap: 10px;
+      gap:10px;
     }
-    .passrow .pw { grid-area: pw; }
-    #btnUnpack { grid-area: unpack; }
-    #btnPack { grid-area: pack; }
-
-      .foot .copy-text {
-      display: block;
-    }
+    .passrow .pw{ grid-area:pw; }
+    #btnUnpack{ grid-area:unpack; }
+    #btnPack{ grid-area:pack; }
+    .foot .copy-text{ display:block; }
   }
 </style>
 </head>
@@ -659,15 +640,15 @@
   const copyBtn = $('copyEditor');
 
   const FONTS = [
-    { name: 'Временной',        enName: 'Times',         stack: "'Times New Roman', Times, serif" },
-    { name: 'Антенный',        enName: 'Arial',         stack: "Arial, Helvetica, sans-serif" },
-    { name: 'Грузинский',      enName: 'Georgia',       stack: "Georgia, 'Times New Roman', serif" },
-    { name: 'Старокнижный', enName: 'Antiqua',      stack: "'Book Antiqua', Palatino, serif" },
-    { name: 'Баскервильский',  enName: 'Baskerville',   stack: "'Baskerville', 'Libre Baskerville', Georgia, serif" },
-    { name: 'Швейцарский',    enName: 'Helvetica',     stack: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
-    { name: 'Курьерский',      enName: 'Courier',       stack: "'Courier New', Courier, monospace" },
-    { name: 'Моноширинный',         enName: 'Monospace',     stack: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" },
-    { name: 'Верданский',      enName: 'Verdana',       stack: "'Verdana', Geneva, sans-serif" }
+    { name: 'Временной',       enName: 'Times',        stack: "'Times New Roman', Times, serif" },
+    { name: 'Антенный',        enName: 'Arial',        stack: "Arial, Helvetica, sans-serif" },
+    { name: 'Грузинский',      enName: 'Georgia',      stack: "Georgia, 'Times New Roman', serif" },
+    { name: 'Старокнижный',    enName: 'Antiqua',      stack: "'Book Antiqua', Palatino, serif" },
+    { name: 'Баскервильский',  enName: 'Baskerville',  stack: "'Baskerville', 'Libre Baskerville', Georgia, serif" },
+    { name: 'Швейцарский',     enName: 'Helvetica',    stack: "'Helvetica Neue', Helvetica, Arial, sans-serif" },
+    { name: 'Курьерский',      enName: 'Courier',      stack: "'Courier New', Courier, monospace" },
+    { name: 'Моноширинный',    enName: 'Monospace',    stack: "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" },
+    { name: 'Верданский',      enName: 'Verdana',      stack: "'Verdana', Geneva, sans-serif" }
   ];
 
   let isEN = false;
@@ -844,11 +825,13 @@
   $('dec').addEventListener('click', () => { if (fontSize > 14) { fontSize -= 2; applySize(); } });
   $('inc').addEventListener('click', () => { if (fontSize < 38) { fontSize += 2; applySize(); } });
 
+  let growTimer = null;
   let growScheduled = false;
   const grow = () => {
     if (growScheduled) return;
     growScheduled = true;
     requestAnimationFrame(() => {
+      growScheduled = false;
       const wrapEl = document.querySelector('.wrap');
       const barEl = document.querySelector('.bar');
       const footEl = document.querySelector('.foot');
@@ -856,12 +839,24 @@
       const avail = wrapEl.clientHeight
         - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)
         - barEl.offsetHeight - footEl.offsetHeight;
-      editor.style.height = Math.max(avail, 200) + 'px';
-      growScheduled = false;
+      const target = Math.max(avail, 200);
+      if (Math.abs(editor.offsetHeight - target) > 1) {
+        editor.style.height = target + 'px';
+      }
     });
   };
-  editor.addEventListener('input', grow);
-  window.addEventListener('resize', grow);
+  const scheduleGrow = () => {
+    if (growTimer) clearTimeout(growTimer);
+    growTimer = setTimeout(grow, 120);
+  };
+  editor.addEventListener('input', scheduleGrow);
+  window.addEventListener('resize', () => { clearTimeout(growTimer); grow(); });
+  if (typeof ResizeObserver !== 'undefined') {
+    const ro = new ResizeObserver(() => { clearTimeout(growTimer); grow(); });
+    ro.observe(document.querySelector('.wrap'));
+    ro.observe(document.querySelector('.bar'));
+    ro.observe(document.querySelector('.foot'));
+  }
   grow();
 
   const lockBtns = (on) => { btnPack.disabled = on; btnUnpack.disabled = on; };
