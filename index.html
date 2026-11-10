@@ -294,6 +294,42 @@
     scrollbar-width:none;
   }
   .info-text::-webkit-scrollbar{ display:none; }
+
+  /* mode toggle */
+  .mode-row{
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:13px;
+    color:var(--muted);
+    user-select:none;
+  }
+  .mode-toggle{
+    display:inline-flex;
+    border:1px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+    background:transparent;
+  }
+  .mode-toggle button{
+    appearance:none;
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    font-family:inherit;
+    font-size:13px;
+    padding:7px 14px;
+    cursor:default;
+    transition:background-color .2s, color .2s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .mode-toggle button.active{
+    background:var(--accent);
+    color:var(--bg);
+  }
   
   @media (max-width: 600px) {
     .bar {
@@ -367,6 +403,13 @@
       <input class="pw" id="pw" type="text" maxlength="10" placeholder="••••••••••" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="nope-please-ignore" aria-label="Поле">
       <button class="act pack" id="btnPack">→</button>
     </div>
+    <div class="mode-row">
+      <span id="modeLabel">Словарь:</span>
+      <div class="mode-toggle" id="modeToggle" role="group" aria-label="Словарь">
+        <button type="button" data-mode="names" class="active" id="modeNames">Имена</button>
+        <button type="button" data-mode="tech" id="modeTech">Техника</button>
+      </div>
+    </div>
     <div class="modal-status" id="modalStatus" aria-live="polite"></div>
   </div>
 </div>
@@ -433,6 +476,40 @@
     "Iraida","Iya","Kapitolina","Karina","Klavdiya"
   ];
 
+  // 256 технических названий (после удаления 15 «не технических»)
+  const TECH = [
+    "8","9","X",
+    "10","11","12","13","14","15","16","17",
+    "A4","A6","A8","DP","E2","E4","E8","FX",
+    "G3","G4","G5","G6","GT","HD","i3","i5","i7","i9",
+    "ID","JD","LG","M1","M2","M3","MG","QQ","SE","SF","TV","XR","XS",
+    "17e","A10","A12","Ant","BOC","BYD","CCB","CMB","CPU","DJI","DVD","DVI",
+    "FAW","FHD","Fila","GAC","GCN","GPS","GPU","GTX","H3C","HTC","Itel","JAC","JMC",
+    "LTE","M4","M5","M7","Max","N50","N95","N97","NFC","Nio","Ora","Pico","Pro",
+    "R3","R5","R7","R9","SMS","STO","TCL","V1","V2","V3","V4","V5","V6","V7","V8","V9",
+    "Wey","YTO","ZTE",
+    "AM4","AM5","Anta","Atom","Aucma","Autel","B450","B550","B650","B760","Bear","CDNA",
+    "Canon","Casio","Chic","Core","DDR2","DDR3","DDR4","DDR5","Didi","DPVR","EPYC","Erke",
+    "GDDR5","GDDR6","Gree","H610","HDMI","Homa","Honor","ICBC","LGA","Leap","Lynk","Midea",
+    "Navi","Nikon","NVMe","NVS","Oppo","Peak","PCIe","RDNA","Rokid","Ryzen","Sany","SATA",
+    "Semir","Sina","Snow","Sohu","Sony","SP3","SP5","SP6","TB3","TB4","Tenda","TR4","TR5",
+    "USB2","USB3","USB4","Vega","VGA","Vivo","X570","X670","XCMG","Xeon","Xtep","Yes","Yili",
+    "Z590","Z690","Z790","Zero",
+    "1050","1060","1070","1080","1650","1660","2050","2060","2070","2080",
+    "3050","3060","3070","3080","3090","4050","4060","4070","4080","4090",
+    "5500","5600","5700","6500","6600","6700","6800","6900","7600","7700","7800","7900",
+    "A620","Aito","Anker","Avatr","Baidu","Chery","Cubot","Dahua","DDR","Duron","Eleme","Exeed",
+    "Foton","Geely","Haier","Haval","Hisun","iQiyi","Kaiyi","Karry","Kelon","Maxus","Meizu",
+    "MX150","MX250","MX350","MX450","MX550","N100","N200","N305","Nubia","PCIe3","PCIe4","PCIe5",
+    "Phenom","Proya","Quadro","Robam","Roewe","SATA3","Sharp","Supor","Tasly","Tecno","Tesla",
+    "Titan","Tmall","Ultra","Vatti","Voyah","Weibo","Xpeng","Yunda","Zeekr","Zhihu","ZTO"
+  ];
+
+  if (TECH.length !== 256) throw new Error('TECH must be 256, got ' + TECH.length);
+  if (new Set(TECH).size !== 256) throw new Error('TECH has duplicates');
+  if (TECH.some(t => t.length > 5)) throw new Error('TECH token too long');
+  if (TECH.some(t => !/^[A-Za-z0-9]+$/.test(t))) throw new Error('TECH invalid chars');
+
   const MAX_URL_LEN = 5000;
   const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
   const L = (() => { const m = Object.create(null); for (let i = 0; i < A.length; i++) m[A[i]] = i; return m; })();
@@ -440,6 +517,9 @@
 
   const NAME_INDEX = new Map();
   for (let i = 0; i < 256; i++) NAME_INDEX.set(NAMES[i], i);
+
+  const TECH_INDEX = new Map();
+  for (let i = 0; i < 256; i++) TECH_INDEX.set(TECH[i], i);
 
   const te = new TextEncoder();
   const td = new TextDecoder();
@@ -649,6 +729,23 @@
     return bytes;
   };
 
+  const bytesToTech = (bytes) => {
+    const parts = [];
+    for (let i = 0; i < bytes.length; i++) parts.push(TECH[bytes[i]]);
+    return parts.join('-');
+  };
+
+  const techToBytes = (str) => {
+    const parts = str.split('-');
+    const bytes = new Uint8Array(parts.length);
+    for (let i = 0; i < parts.length; i++) {
+      const idx = TECH_INDEX.get(parts[i]);
+      if (idx === undefined) return null;
+      bytes[i] = idx;
+    }
+    return bytes;
+  };
+
   const $ = (id) => document.getElementById(id);
   const root = document.documentElement;
   const editor = $('editor');
@@ -672,6 +769,9 @@
   const convertBtn = $('go');
   const goLabel = $('goLabel');
   const copyBtn = $('copyBtn');
+  const modeToggle = $('modeToggle');
+  const modeNames = $('modeNames');
+  const modeTech = $('modeTech');
 
   const FONTS = [
     { name: 'Временной',       enName: 'Times',        stack: "'Times New Roman', Times, serif" },
@@ -686,6 +786,7 @@
   ];
 
   let isEN = false;
+  let currentMode = 'names';
 
   const i18n = {
     ru: {
@@ -710,7 +811,10 @@
       hashAria: 'Применить',
       copyAria: 'Копировать',
       infoText: '?',
-      donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha'
+      donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
+      modeLabel: 'Словарь:',
+      modeNames: 'Имена',
+      modeTech: 'Техника'
     },
     en: {
       title: 'Textinho. Text in the link',
@@ -734,7 +838,10 @@
       hashAria: 'Apply',
       copyAria: 'Copy',
       infoText: '?',
-      donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha'
+      donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
+      modeLabel: 'Dictionary:',
+      modeNames: 'Names',
+      modeTech: 'Tech'
     }
   };
 
@@ -761,6 +868,12 @@
     document.body.classList.remove('modal-open');
   };
 
+  const applyMode = (mode) => {
+    currentMode = mode;
+    modeNames.classList.toggle('active', mode === 'names');
+    modeTech.classList.toggle('active', mode === 'tech');
+  };
+
   const applyLang = (lang) => {
     const t = i18n[lang];
     isEN = (lang === 'en');
@@ -778,6 +891,9 @@
     mainMenu.querySelector('[data-action="info"]').textContent = t.info;
     fontToggle.textContent = isEN ? 'Font' : 'Шрифт';
     langBtn.textContent = isEN ? 'Русский' : 'Eng';
+    document.getElementById('modeLabel').textContent = t.modeLabel;
+    modeNames.textContent = t.modeNames;
+    modeTech.textContent = t.modeTech;
     fontMenu.querySelectorAll('button').forEach(b => {
       const f = FONTS.find(x => x.stack === b.dataset.stack);
       if (f) b.textContent = isEN ? f.enName : f.name;
@@ -788,6 +904,12 @@
   };
 
   langBtn.addEventListener('click', () => applyLang(isEN ? 'ru' : 'en'));
+
+  modeToggle.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-mode]');
+    if (!btn) return;
+    applyMode(btn.dataset.mode);
+  });
 
   const FONT_KEY = 'pack-font-2';
   let currentFont = FONTS[0].stack;
@@ -958,15 +1080,17 @@
     try {
       const rawHash = await ep(text, pw);
       if (!rawHash) { setModalStatus(t.errError, 'err'); return; }
-      const namesHash = bytesToNames(rawHash);
-      editor.value = namesHash;
+      const prefix = currentMode === 'tech' ? 't-' : 'n-';
+      const payload = currentMode === 'tech' ? bytesToTech(rawHash) : bytesToNames(rawHash);
+      const outHash = prefix + payload;
+      editor.value = outHash;
       grow();
       closeModal();
-      if (namesHash.length > MAX_URL_LEN) {
+      if (outHash.length > MAX_URL_LEN) {
         setHash('');
         setTimeout(() => showToast(t.errLong, 4000), 100);
       } else {
-        setHash(namesHash);
+        setHash(outHash);
       }
     } catch {
       setModalStatus(t.errError, 'err');
@@ -982,7 +1106,16 @@
     lockBtns(true);
     setModalStatus('…');
     try {
-      const bytes = namesToBytes(raw);
+      let bytes = null;
+      if (raw.startsWith('t-')) {
+        bytes = techToBytes(raw.slice(2));
+      } else if (raw.startsWith('n-')) {
+        bytes = namesToBytes(raw.slice(2));
+      } else {
+        // обратная совместимость: без префикса сначала имена, потом техника
+        bytes = namesToBytes(raw);
+        if (!bytes) bytes = techToBytes(raw);
+      }
       if (!bytes) { setModalStatus(t.errFail, 'err'); return; }
       const text = await dp(bytes, pw);
       if (text === null || text === '') { setModalStatus(t.errFail, 'err'); return; }
@@ -1018,6 +1151,7 @@
     if (fromHash) { editor.value = fromHash; setHash(fromHash); grow(); }
   }
 
+  applyMode('names');
   applyLang('ru');
 
 })();
