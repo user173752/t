@@ -331,11 +331,12 @@
   }
   
   @media (max-width: 600px) {
+    .wrap {
+      padding-bottom: calc(104px + env(safe-area-inset-bottom));
+    }
     .bar {
       display: grid;
-      grid-template-areas:
-        "dec font inc . lang menu"
-        "go go go . link copy";
+      grid-template-areas: "dec font inc . lang menu";
       grid-template-columns: auto auto auto 1fr auto auto;
       gap: 12px 14px;
       align-items: center;
@@ -347,9 +348,24 @@
     #inc { grid-area: inc; }
     #lang { grid-area: lang; }
     .menuwrap { grid-area: menu; }
-    #go { grid-area: go; margin-left: 0; justify-self: start; }
-    #copyLinkBtn { grid-area: link; justify-self: end; }
-    #copyBtn { grid-area: copy; justify-self: end; }
+    #go, #copyLinkBtn, #copyBtn {
+      position: fixed;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      z-index: 40;
+      background: var(--panel) !important;
+      border: 1px solid var(--line) !important;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+    #go {
+      left: 20px;
+      margin-left: 0;
+    }
+    #copyLinkBtn { right: 76px; }
+    #copyBtn { right: 20px; }
+    .toast { bottom: calc(88px + env(safe-area-inset-bottom)); }
     .passrow {
       grid-template-columns: 1fr auto;
       grid-template-areas:
