@@ -8,8 +8,8 @@
 <meta name="description" content="Текст в ссылке/Text in the link">
 <meta property="og:description" content="Текст в ссылке/Text in the link">
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2212%22%20fill%3D%22%23f6f1e7%22%2F%3E%3Ctext%20x%3D%2232%22%20y%3D%2246%22%20font-family%3D%22Georgia%2C%20serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20fill%3D%22%232b2620%22%3E%23T%3C%2Ftext%3E%3C%2Fsvg%3E">
-<title>Текстиньо</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20fill%3D%22%232b2620%22%2F%3E%3Ctext%20x%3D%2232%22%20y%3D%2252%22%20font-family%3D%22Georgia%2C%20serif%22%20font-size%3D%2256%22%20font-weight%3D%22700%22%20text-anchor%3D%22middle%22%20fill%3D%22%23f6f1e7%22%3E%23%3C%2Ftext%3E%3C%2Fsvg%3E">
+<title>T</title>
 <style>
   :root{
     --bg:#f6f1e7;
@@ -65,9 +65,9 @@
   body.modal-open { overflow: hidden; }
   .wrap{
     max-width:680px; margin:0 auto;
-    padding:46px 30px 120px;
+    padding:46px 30px 24px;
     position:relative;
-    min-height:100vh;
+    min-height:100dvh;
     display:flex;
     flex-direction:column;
   }
@@ -136,7 +136,7 @@
     padding:6px;
     display:none;
     z-index:100;
-    font-family:Georgia,"Times New Roman",serif;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     white-space:nowrap;
     width:max-content;
   }
@@ -157,13 +157,13 @@
   .editor{
     width:100%;
     flex:1 1 auto;
-    min-height:34.5vh;
+    min-height:0;
     border:0; outline:none; resize:none;
     background:transparent; color:var(--text);
     font:inherit; line-height:1.75;
     padding:0;
     letter-spacing:.005em;
-    overflow:hidden;
+    overflow-y:auto;
     position:relative;
     z-index:1;
   }
@@ -691,7 +691,7 @@
       bitcoin: 'Биток',
       info: 'Инфо',
       convert: '#преобразовать',
-      infoText: 'Автономное одностраничное приложение (vanilla HTML/CSS/JavaScript, без фреймворков и внешних библиотек). Вся обработка выполняется непосредственно в браузере: текст сжимается через нативный CompressionStream (Deflate), а при его отсутствии используется собственная реализация LZW. Затем данные шифруются посредством Web Crypto API: AES-256-GCM, ключ формируется из пользовательского пароля длиной ровно 10 символов через PBKDF2-SHA-256 с 200 000 итераций и случайными salt и IV. Полученный бинарный результат кодируется в последовательность имён из словаря и помещается непосредственно в URL после #. Таким образом, пользователь может превратить текст в ссылку, отправить её любым способом. Кнопка «Офлайн» скачивает самостоятельный HTML-файл TEXTINHO.html, позволяющий пользоваться приложением без подключения к интернету. Важная архитектурная особенность: в исходном коде задана строгая Content Security Policy (default-src "none"), отсутствуют внешние сетевые зависимости и API-запросы. При этом первоначальное открытие сайта, разумеется, требует загрузки HTML, а локальная обработка текста, сжатие и шифрование не требуют обращения к серверу. ybrjujytn@proton.me',
+      infoText: '?',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha'
     },
     en: {
@@ -712,7 +712,7 @@
       bitcoin: 'Bitcoin',
       info: 'Info',
       convert: '#convert',
-      infoText: 'Textinho is a minimalist, privacy-first, fully client-side text editor and encrypted link-sharing tool. Built with vanilla HTML, CSS and JavaScript, without frameworks, external libraries or backend services, it processes all user content directly in the browser. Text is compressed using the native CompressionStream API (Deflate), with a custom LZW implementation as a fallback, then encrypted using the Web Crypto API with AES-256-GCM. Encryption keys are derived from an exactly 10-character password using PBKDF2-SHA-256 with 200,000 iterations and randomly generated salt and IV. The resulting binary payload is converted into a sequence of human-readable names using a custom dictionary and embedded directly into the URL fragment (#). This creates a portable encrypted text link: the recipient simply opens it, enters the password and decrypts the original message locally. The application also includes password validation, error handling, automatic editor resizing and a 5,000-character URL limit. The interface combines a deliberately minimal, typography-focused design with practical customization and offline capabilities. Features include nine selectable font families, adjustable font size, light and dark themes with automatic system preference detection, locally persisted settings via localStorage, Russian/English localization, clipboard copying, informational and Bitcoin donation panels, and responsive layouts for desktop and mobile. The Offline feature downloads a completely self-contained TEXTINHO.html file that can be opened and used without an internet connection. A restrictive Content Security Policy (default-src "none") and the absence of external dependencies reinforce the privacy-oriented architecture. No backend, accounts, cloud storage or server-side text processing are needed: encryption, compression, link generation and decryption all happen locally in the user`s browser. The result is a lightweight, portable tool for private notes, sharing sensitive messages, transferring text between devices and preserving access to a simple text editor even when offline. ybrjujytn@proton.me',
+      infoText: '?',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha'
     }
   };
@@ -849,9 +849,14 @@
     if (growScheduled) return;
     growScheduled = true;
     requestAnimationFrame(() => {
-      editor.style.height = 'auto';
-      const min = Math.max(window.innerHeight * 0.345, 200);
-      editor.style.height = Math.max(editor.scrollHeight, min) + 'px';
+      const wrapEl = document.querySelector('.wrap');
+      const barEl = document.querySelector('.bar');
+      const footEl = document.querySelector('.foot');
+      const cs = getComputedStyle(wrapEl);
+      const avail = wrapEl.clientHeight
+        - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)
+        - barEl.offsetHeight - footEl.offsetHeight;
+      editor.style.height = Math.max(avail, 200) + 'px';
       growScheduled = false;
     });
   };
