@@ -178,6 +178,22 @@
     -webkit-tap-highlight-color:transparent;
   }
   .fontmenu button.active{color:var(--accent); font-weight:700}
+  .fontmenu .menu-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:8px 12px;
+  }
+  .fontmenu .menu-row .text-btn{ font-size:15px; color:var(--text); }
+  .fontmenu .menu-row .sizer button{ font-size:20px; width:24px; height:24px; }
+  .fontmenu .menu-icon{
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .fontmenu .menu-icon svg{
+    width:18px; height:18px;
+    stroke:currentColor; fill:none;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+  }
 
   .editor{
     width:100%;
@@ -329,43 +345,28 @@
     background:var(--accent);
     color:var(--bg);
   }
-  
+
+  .menu-row-hidden{ display:none; }
+  .menu-icon-hidden{ display:none; }
+  .sizer-hidden{ display:none; }
+
   @media (max-width: 600px) {
-    .wrap {
-      padding-bottom: calc(104px + env(safe-area-inset-bottom));
-    }
     .bar {
       display: grid;
-      grid-template-areas: "dec font inc . lang menu";
-      grid-template-columns: auto auto auto 1fr auto auto;
-      gap: 12px 14px;
+      grid-template-areas: "go . lang menu";
+      grid-template-columns: auto 1fr auto auto;
+      gap: 12px;
       align-items: center;
-      justify-content: normal;
     }
-    .bar-left, .bar-right { display: contents; }
-    #dec { grid-area: dec; }
-    .fontwrap { grid-area: font; }
-    #inc { grid-area: inc; }
+    .bar-left { display: contents; }
+    .bar-right { display: contents; }
+    #go { grid-area: go; margin-left: 0; justify-self: start; }
     #lang { grid-area: lang; }
     .menuwrap { grid-area: menu; }
-    #go, #copyLinkBtn, #copyBtn {
-      position: fixed;
-      bottom: calc(16px + env(safe-area-inset-bottom));
-      z-index: 40;
-      background: var(--panel) !important;
-      border: 1px solid var(--line) !important;
-      border-radius: 8px;
-      padding: 10px 14px;
-      color: var(--text);
-      box-shadow: var(--shadow);
-    }
-    #go {
-      left: 20px;
-      margin-left: 0;
-    }
-    #copyLinkBtn { right: 76px; }
-    #copyBtn { right: 20px; }
-    .toast { bottom: calc(88px + env(safe-area-inset-bottom)); }
+    #dec, #inc, .fontwrap, #copyLinkBtn, #copyBtn { display: none; }
+    .menu-row-hidden{ display:flex; }
+    .menu-icon-hidden{ display:inline-flex; }
+    .sizer-hidden{ display:flex; }
     .passrow {
       grid-template-columns: 1fr auto;
       grid-template-areas:
@@ -382,23 +383,59 @@
 <body>
 <div class="wrap">
   <div class="bar">
-    <button class="text-btn" id="dec" aria-label="Меньше">−</button>
-    <div class="fontwrap" id="fontwrap">
-      <button class="text-btn" id="fontToggle">Шрифт</button>
-      <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
-    </div>
-    <button class="text-btn" id="inc" aria-label="Больше">+</button>
-    <button class="text-btn" id="go"><span id="goLabel">#Применить</span></button>
-    <div class="menuwrap" id="menuwrap">
-      <button class="text-btn" id="menuToggle">Сюда</button>
-      <div class="fontmenu" id="mainMenu" role="menu" aria-label="Меню">
-        <button type="button" data-action="theme">Тема</button>
-        <button type="button" data-action="download">Офлайн</button>
-        <button type="button" data-action="donate">Биток</button>
-        <button type="button" data-action="info">Инфо</button>
+    <div class="bar-left">
+      <button class="text-btn" id="dec" aria-label="Меньше">−</button>
+      <div class="fontwrap" id="fontwrap">
+        <button class="text-btn" id="fontToggle">Шрифт</button>
+        <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
       </div>
+      <button class="text-btn" id="inc" aria-label="Больше">+</button>
     </div>
-    <button class="text-btn lang" id="lang">Eng</button>
+    <div class="bar-right">
+      <button class="text-btn" id="go"><span id="goLabel">#Применить</span></button>
+      <div class="menuwrap" id="menuwrap">
+        <button class="text-btn" id="menuToggle">Сюда</button>
+        <div class="fontmenu" id="mainMenu" role="menu" aria-label="Меню">
+          <button type="button" data-action="theme">Тема</button>
+          <button type="button" data-action="download">Офлайн</button>
+          <button type="button" data-action="donate">Биток</button>
+          <button type="button" data-action="info">Инфо</button>
+          <button type="button" data-action="copy-text" class="menu-icon-hidden">
+            <span class="menu-icon">
+              <svg viewBox="0 0 24 24">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </span>
+          </button>
+          <button type="button" data-action="copy-link" class="menu-icon-hidden">
+            <span class="menu-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M9.5 14.5l5-5"></path>
+                <path d="M11 17l-1.5 1.5a4 4 0 0 1-5.66-5.66L5.5 11.18"></path>
+                <path d="M13 7l1.5-1.5a4 4 0 0 1 5.66 5.66L18.5 12.82"></path>
+              </svg>
+            </span>
+          </button>
+          <button type="button" data-action="clear">Очистить</button>
+          <button type="button" data-action="font" class="menu-row-hidden">
+            <span class="menu-icon">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 7V5h16v2"></path>
+                <path d="M9 19h6"></path>
+                <path d="M12 5v14"></path>
+              </svg>
+            </span>
+            <span>Шрифт</span>
+          </button>
+          <div class="menu-row menu-row-hidden" id="mobileSizer">
+            <button type="button" class="text-btn sizer-hidden" data-size="inc" aria-label="Больше">+</button>
+            <button type="button" class="text-btn sizer-hidden" data-size="dec" aria-label="Меньше">−</button>
+          </div>
+        </div>
+      </div>
+      <button class="text-btn lang" id="lang">Eng</button>
+    </div>
     <button class="text-btn" id="copyLinkBtn" aria-label="Копировать ссылку">
       <span class="copy-icon">
         <svg viewBox="0 0 24 24">
@@ -825,6 +862,8 @@
       offline: 'Офлайн',
       bitcoin: 'Биток',
       info: 'Инфо',
+      clear: 'Очистить',
+      font: 'Шрифт',
       hashBtn: '#Применить',
       hashAria: 'Применить',
       copyAria: 'Копировать',
@@ -854,6 +893,8 @@
       offline: 'Offline',
       bitcoin: 'Bitcoin',
       info: 'Info',
+      clear: 'Clear',
+      font: 'Font',
       hashBtn: '#Apply',
       hashAria: 'Apply',
       copyAria: 'Copy',
@@ -912,7 +953,10 @@
     mainMenu.querySelector('[data-action="download"]').textContent = t.offline;
     mainMenu.querySelector('[data-action="donate"]').textContent = t.bitcoin;
     mainMenu.querySelector('[data-action="info"]').textContent = t.info;
-    fontToggle.textContent = isEN ? 'Font' : 'Шрифт';
+    mainMenu.querySelector('[data-action="clear"]').textContent = t.clear;
+    var fontBtn = mainMenu.querySelector('[data-action="font"]');
+    fontBtn.querySelector('span:last-child').textContent = t.font;
+    fontToggle.textContent = t.font;
     langBtn.textContent = isEN ? 'Русский' : 'Eng';
     document.getElementById('modeLabel').textContent = t.modeLabel;
     modeNames.textContent = t.modeNames;
@@ -949,7 +993,7 @@
     editor.style.fontFamily = stack;
     try { localStorage.setItem(FONT_KEY, stack); } catch (err) {}
     fontMenu.querySelectorAll('button').forEach(function (b) {
-      b.classList.toggle('active', b.dataset.stack === stack);
+      if (b.dataset.stack) b.classList.toggle('active', b.dataset.stack === stack);
     });
   }
 
@@ -1020,6 +1064,15 @@
   applySize();
   $('dec').addEventListener('click', function () { if (fontSize > 14) { fontSize -= 2; applySize(); } });
   $('inc').addEventListener('click', function () { if (fontSize < 38) { fontSize += 2; applySize(); } });
+
+  var mobileSizer = $('mobileSizer');
+  mobileSizer.querySelectorAll('button[data-size]').forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (b.dataset.size === 'inc' && fontSize < 38) { fontSize += 2; applySize(); }
+      if (b.dataset.size === 'dec' && fontSize > 14) { fontSize -= 2; applySize(); }
+    });
+  });
 
   function ensureCaretVisible() {
     var rect = editor.getBoundingClientRect();
@@ -1110,12 +1163,29 @@
   mainMenu.querySelectorAll('button').forEach(function (b) {
     b.addEventListener('click', function (e) {
       e.stopPropagation();
-      mainDD.close();
       var action = b.dataset.action;
+      if (action === 'copy-text') {
+        copyBtn.click();
+        return;
+      }
+      if (action === 'copy-link') {
+        copyLinkBtn.click();
+        return;
+      }
+      if (action === 'font') {
+        applyLang(isEN ? 'en' : 'ru');
+        return;
+      }
+      mainDD.close();
       if (action === 'theme') toggleTheme();
       else if (action === 'download') downloadOffline();
       else if (action === 'donate') showModal(donateModal);
       else if (action === 'info') showModal(infoModal);
+      else if (action === 'clear') {
+        editor.value = '';
+        setHash('');
+        grow();
+      }
     });
   });
 
