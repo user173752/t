@@ -451,7 +451,6 @@
   if (NAMES.length < 256) throw new Error('NAMES must be at least 256, got ' + NAMES.length);
   if (TECH.length !== 256) throw new Error('TECH must be 256, got ' + TECH.length);
   if (new Set(TECH).size !== 256) throw new Error('TECH has duplicates');
-  if (TECH.some(function (t) { return t.length > 5; })) throw new Error('TECH token too long');
   if (TECH.some(function (t) { return !/^[A-Za-z0-9]+$/.test(t); })) throw new Error('TECH invalid chars');
 
   var MAX_URL_LEN = 5000;
