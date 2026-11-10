@@ -103,7 +103,11 @@
   .sizer button:focus{outline:none}
   
   .text-btn{
-    appearance:none; border:0; background:transparent;
+    appearance:none; 
+    border:0 !important; 
+    background:transparent !important;
+    box-shadow:none !important;
+    outline:none !important;
     color:var(--muted);
     font-family:monospace !important;
     font-size:15px; line-height:1;
@@ -111,9 +115,18 @@
     transition:color .2s;
     display:inline-flex;
     align-items:center;
+    -webkit-tap-highlight-color: transparent;
   }
-  .text-btn:focus{outline:none}
+  .text-btn:focus,
+  .text-btn:active,
+  .text-btn:hover { 
+    outline: none !important; 
+    box-shadow: none !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
   .text-btn:hover{ color:var(--text); }
+  .text-btn::-moz-focus-inner { border: 0; }
   
   .fontwrap{ position:relative; display:inline-flex; align-items:center; }
   .menuwrap{ position:relative; display:inline-flex; align-items:center; }
@@ -163,7 +176,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    margin-left: 4px;
+    margin-left: 6px;
   }
   .copy-icon svg {
     width: 1.1em;
@@ -173,6 +186,7 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     fill: none;
+    pointer-events: none;
   }
 
   .overlay{
