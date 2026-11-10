@@ -418,14 +418,7 @@
             </span>
           </button>
           <button type="button" data-action="clear">Очистить</button>
-          <button type="button" data-action="font" class="menu-row-hidden">
-            <span class="menu-icon">
-              <svg viewBox="0 0 24 24">
-                <path d="M4 7V5h16v2"></path>
-                <path d="M9 19h6"></path>
-                <path d="M12 5v14"></path>
-              </svg>
-            </span>
+          <button type="button" data-action="font" class="menu-row-hidden" id="mobileFontCycle">
             <span>Шрифт</span>
           </button>
           <div class="menu-row menu-row-hidden" id="mobileSizer">
@@ -997,6 +990,12 @@
     });
   }
 
+  function cycleFont() {
+    var idx = FONTS.findIndex(function (f) { return f.stack === currentFont; });
+    var next = FONTS[(idx + 1) % FONTS.length];
+    applyFont(next.stack);
+  }
+
   function makeDropdown(wrap, toggle, menu) {
     function close() { menu.classList.remove('open'); }
     function open() { menu.classList.add('open'); }
@@ -1173,7 +1172,7 @@
         return;
       }
       if (action === 'font') {
-        applyLang(isEN ? 'en' : 'ru');
+        cycleFont();
         return;
       }
       mainDD.close();
