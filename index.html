@@ -63,6 +63,7 @@
     overscroll-behavior-y:none;
   }
   body.modal-open { overflow: hidden; }
+  
   .wrap{
     max-width:680px;
     margin:0 auto;
@@ -75,7 +76,7 @@
   .bar{
     display:flex; align-items:center; justify-content:space-between;
     gap:24px; 
-    margin-bottom:24px;
+    margin-bottom:36px;
     font-size:15px; color:var(--muted);
     user-select:none;
     border-bottom:1px solid var(--line);
@@ -84,8 +85,10 @@
     flex:0 0 auto;
     padding-bottom:20px;
   }
+  
   .bar-left { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
   .bar-right { display:flex; align-items:center; gap:20px; flex-wrap:wrap; justify-content:flex-end; }
+  
   .sizer{ display:flex; align-items:center; gap:2px; }
   .sizer button{
     appearance:none; border:0; background:transparent;
@@ -98,6 +101,7 @@
     transition:color .2s;
   }
   .sizer button:focus{outline:none}
+  
   .text-btn{
     appearance:none; border:0; background:transparent;
     color:var(--muted);
@@ -105,6 +109,8 @@
     font-size:15px; line-height:1;
     padding:0; cursor:default;
     transition:color .2s;
+    display:inline-flex;
+    align-items:center;
   }
   .text-btn:focus{outline:none}
   .text-btn:hover{ color:var(--text); }
@@ -139,19 +145,12 @@
   }
   .fontmenu button.active{color:var(--accent); font-weight:700}
 
-  .editor-container {
-    position: relative;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
   .editor{
     width:100%;
     border:0; outline:none; resize:none;
     background:transparent; color:var(--text);
     font:inherit; line-height:1.75;
     padding:0;
-    padding-right:28px;
     letter-spacing:.005em;
     overflow:hidden;
     position:relative;
@@ -160,29 +159,13 @@
   }
   .editor::placeholder{color:var(--muted); font-style:italic; opacity:.7}
   
-  .copy-btn {
-    position: absolute;
-    top: 0;
-    right: 0;
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-    outline: none !important;
-    padding: 4px;
-    margin: 0;
-    color: var(--muted);
-    cursor: default;
-    transition: color 0.2s;
-    display: grid;
-    place-items: center;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-    -webkit-user-select: none;
+  .copy-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
   }
-  .copy-btn::-moz-focus-inner {
-    border: 0;
-  }
-  .copy-btn svg {
+  .copy-icon svg {
     width: 1.1em;
     height: 1.1em;
     stroke: currentColor;
@@ -190,10 +173,6 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     fill: none;
-    pointer-events: none;
-  }
-  .copy-btn:hover {
-    color: var(--text);
   }
 
   .overlay{
@@ -328,18 +307,18 @@
         </div>
       </div>
       <button class="text-btn lang" id="lang">Eng</button>
+      <button class="text-btn" id="copyBtn" aria-label="Копировать">
+        <span class="copy-icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </span>
+      </button>
     </div>
   </div>
 
-  <div class="editor-container">
-    <textarea class="editor" id="editor" rows="1" placeholder="Ввод..." spellcheck="false"></textarea>
-    <button class="copy-btn" id="copyBtn" aria-label="Копировать">
-      <svg viewBox="0 0 24 24">
-        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-    </button>
-  </div>
+  <textarea class="editor" id="editor" rows="1" placeholder="Ввод..." spellcheck="false"></textarea>
 </div>
 
 <div class="overlay" id="overlay">
