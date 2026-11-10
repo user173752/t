@@ -384,8 +384,9 @@
       <button class="text-btn" id="copyLinkBtn" aria-label="Копировать ссылку">
         <span class="copy-icon">
           <svg viewBox="0 0 24 24">
-            <path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11 4"></path>
-            <path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07L13 19"></path>
+            <path d="M9.5 14.5l5-5"></path>
+            <path d="M11 17l-1.5 1.5a4 4 0 0 1-5.66-5.66L5.5 11.18"></path>
+            <path d="M13 7l1.5-1.5a4 4 0 0 1 5.66 5.66L18.5 12.82"></path>
           </svg>
         </span>
       </button>
@@ -436,10 +437,10 @@
 <div class="toast" id="toast"></div>
 
 <script>
-(() => {
+(function () {
   'use strict';
 
-  const NAMES = [
+  var NAMES = [
     "Ivan","Petr","Oleg","Dima","Max","Egor","Ilya","Lev","Yra","Koly",
     "Vasy","Pety","Vany","Sasha","Pasha","Zhora","Kosty","Gena","Slava","Bory",
     "Toly","Vity","Den","Yasha","Grisha","Misha","Artem","Boris","Vadim","Roman",
@@ -483,7 +484,7 @@
     "Iraida","Iya","Kapitolina","Karina","Klavdiya"
   ];
 
-  const TECH = [
+  var TECH = [
     "8","9","X",
     "10","11","12","13","14","15","16","17",
     "A4","A6","A8","DP","E2","E4","E8","FX",
@@ -513,98 +514,98 @@
 
   if (TECH.length !== 256) throw new Error('TECH must be 256, got ' + TECH.length);
   if (new Set(TECH).size !== 256) throw new Error('TECH has duplicates');
-  if (TECH.some(t => t.length > 5)) throw new Error('TECH token too long');
-  if (TECH.some(t => !/^[A-Za-z0-9]+$/.test(t))) throw new Error('TECH invalid chars');
+  if (TECH.some(function (t) { return t.length > 5; })) throw new Error('TECH token too long');
+  if (TECH.some(function (t) { return !/^[A-Za-z0-9]+$/.test(t); })) throw new Error('TECH invalid chars');
 
-  const MAX_URL_LEN = 5000;
-  const A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-  const L = (() => { const m = Object.create(null); for (let i = 0; i < A.length; i++) m[A[i]] = i; return m; })();
-  const HAS_CS = typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
+  var MAX_URL_LEN = 5000;
+  var A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  var L = (function () { var m = Object.create(null); for (var i = 0; i < A.length; i++) m[A[i]] = i; return m; })();
+  var HAS_CS = typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
 
-  const NAME_INDEX = new Map();
-  for (let i = 0; i < 256; i++) NAME_INDEX.set(NAMES[i], i);
+  var NAME_INDEX = new Map();
+  for (var ni = 0; ni < 256; ni++) NAME_INDEX.set(NAMES[ni], ni);
 
-  const TECH_INDEX = new Map();
-  for (let i = 0; i < 256; i++) TECH_INDEX.set(TECH[i], i);
+  var TECH_INDEX = new Map();
+  for (var ti = 0; ti < 256; ti++) TECH_INDEX.set(TECH[ti], ti);
 
-  const te = new TextEncoder();
-  const td = new TextDecoder();
+  var te = new TextEncoder();
+  var td = new TextDecoder();
 
-  const wf = (v) => {
-    const s = String(v ?? '');
+  function wf(v) {
+    var s = String(v == null ? '' : v);
     if (typeof s.toWellFormed === 'function') return s.toWellFormed();
-    let o = '';
-    for (let i = 0; i < s.length; i++) {
-      const c = s.charCodeAt(i);
+    var o = '';
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charCodeAt(i);
       if (c >= 0xd800 && c <= 0xdbff) {
-        const n = s.charCodeAt(i + 1);
+        var n = s.charCodeAt(i + 1);
         if (n >= 0xdc00 && n <= 0xdfff) { o += s[i] + s[i + 1]; i++; }
         else o += '\uFFFD';
       } else if (c >= 0xdc00 && c <= 0xdfff) o += '\uFFFD';
       else o += s[i];
     }
     return o;
-  };
+  }
 
-  const zc = (input) => {
-    const s = wf(input);
+  function zc(input) {
+    var s = wf(input);
     if (!s) return '';
-    const d = Object.create(null);
-    const tc = Object.create(null);
-    let ds = 3, nb = 2, ei = 2, w = '';
-    const st = { out: [], v: 0, p: 0 };
-    const em = (bit) => {
+    var d = Object.create(null);
+    var tc = Object.create(null);
+    var ds = 3, nb = 2, ei = 2, w = '';
+    var st = { out: [], v: 0, p: 0 };
+    function em(bit) {
       st.v = (st.v << 1) | bit;
       if (st.p === 5) { st.out.push(A[st.v]); st.v = 0; st.p = 0; }
       else st.p++;
-    };
-    const fl = () => {
+    }
+    function fl() {
       if (w in tc) {
         if (w.charCodeAt(0) < 256) {
-          for (let k = 0; k < nb; k++) em(0);
-          let v = w.charCodeAt(0);
-          for (let k = 0; k < 8; k++) { em(v & 1); v >>= 1; }
+          for (var k1 = 0; k1 < nb; k1++) em(0);
+          var v1 = w.charCodeAt(0);
+          for (var k2 = 0; k2 < 8; k2++) { em(v1 & 1); v1 >>= 1; }
         } else {
-          let v = 1;
-          for (let k = 0; k < nb; k++) { em(v & 1); v >>= 1; }
-          let vv = w.charCodeAt(0);
-          for (let k = 0; k < 16; k++) { em(vv & 1); vv >>= 1; }
+          var v2 = 1;
+          for (var k3 = 0; k3 < nb; k3++) { em(v2 & 1); v2 >>= 1; }
+          var vv = w.charCodeAt(0);
+          for (var k4 = 0; k4 < 16; k4++) { em(vv & 1); vv >>= 1; }
         }
         ei--;
-        if (ei === 0) { ei = 2 ** nb; nb++; }
+        if (ei === 0) { ei = Math.pow(2, nb); nb++; }
         delete tc[w];
       } else {
-        let v = d[w];
-        for (let k = 0; k < nb; k++) { em(v & 1); v >>= 1; }
+        var v3 = d[w];
+        for (var k5 = 0; k5 < nb; k5++) { em(v3 & 1); v3 >>= 1; }
       }
       ei--;
-      if (ei === 0) { ei = 2 ** nb; nb++; }
-    };
-    for (let i = 0; i < s.length; i++) {
-      const c = s.charAt(i);
+      if (ei === 0) { ei = Math.pow(2, nb); nb++; }
+    }
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charAt(i);
       if (!(c in d)) { d[c] = ds++; tc[c] = true; }
-      const wc = w + c;
+      var wc = w + c;
       if (wc in d) { w = wc; continue; }
       fl();
       d[wc] = ds++;
       w = String(c);
     }
     if (w !== '') fl();
-    let v = 2;
-    for (let k = 0; k < nb; k++) { em(v & 1); v >>= 1; }
+    var vt = 2;
+    for (var k6 = 0; k6 < nb; k6++) { em(vt & 1); vt >>= 1; }
     while (true) {
       st.v <<= 1;
       if (st.p === 5) { st.out.push(A[st.v]); break; }
       st.p++;
     }
     return st.out.join('');
-  };
+  }
 
-  const rb = (n, data, len, get) => {
-    let bits = 0, power = 1;
-    const max = 2 ** n;
+  function rb(n, data, len, get) {
+    var bits = 0, power = 1;
+    var max = Math.pow(2, n);
     while (power !== max) {
-      const resb = data.val & data.pos;
+      var resb = data.val & data.pos;
       data.pos >>= 1;
       if (data.pos === 0) {
         data.pos = 32;
@@ -615,29 +616,29 @@
       power <<= 1;
     }
     return bits;
-  };
+  }
 
-  const zd = (input) => {
+  function zd(input) {
     if (input == null) return null;
     if (input === '') return '';
-    const get = (i) => L[input.charAt(i)];
-    const data = { val: get(0), pos: 32, i: 1 };
+    function get(i) { return L[input.charAt(i)]; }
+    var data = { val: get(0), pos: 32, i: 1 };
     if (data.val == null) return null;
-    const d = [0, 1, 2];
-    let ei = 4, ds = 4, nb = 3, en = '';
-    const res = [];
-    const next = rb(2, data, input.length, get);
-    let c;
+    var d = [0, 1, 2];
+    var ei = 4, ds = 4, nb = 3, en = '';
+    var res = [];
+    var next = rb(2, data, input.length, get);
+    var c;
     if (next === 0) c = String.fromCharCode(rb(8, data, input.length, get));
     else if (next === 1) c = String.fromCharCode(rb(16, data, input.length, get));
     else if (next === 2) return '';
     else return null;
     d[3] = c;
-    let w = c;
+    var w = c;
     res.push(c);
     while (true) {
       if (data.i > input.length) return null;
-      let bits = rb(nb, data, input.length, get);
+      var bits = rb(nb, data, input.length, get);
       if (bits === 0) {
         d[ds] = String.fromCharCode(rb(8, data, input.length, get));
         bits = ds++; ei--;
@@ -647,145 +648,151 @@
       } else if (bits === 2) {
         return res.join('');
       }
-      if (ei === 0) { ei = 2 ** nb; nb++; }
+      if (ei === 0) { ei = Math.pow(2, nb); nb++; }
       if (d[bits] !== undefined) en = d[bits];
       else if (bits === ds) en = w + w.charAt(0);
       else return null;
       res.push(en);
       d[ds++] = w + en.charAt(0);
       ei--; w = en;
-      if (ei === 0) { ei = 2 ** nb; nb++; }
+      if (ei === 0) { ei = Math.pow(2, nb); nb++; }
     }
-  };
+  }
 
-  const compress = async (text) => {
+  function compress(text) {
     if (HAS_CS) {
-      const stream = new CompressionStream('deflate');
-      const writer = stream.writable.getWriter();
+      var stream = new CompressionStream('deflate');
+      var writer = stream.writable.getWriter();
       writer.write(te.encode(text));
       writer.close();
-      const response = new Response(stream.readable);
-      const buf = await response.arrayBuffer();
-      return new Uint8Array(buf);
+      var response = new Response(stream.readable);
+      return response.arrayBuffer().then(function (buf) { return new Uint8Array(buf); });
     }
-    return te.encode(zc(text));
-  };
+    return Promise.resolve(te.encode(zc(text)));
+  }
 
-  const decompress = async (buf, flag) => {
+  function decompress(buf, flag) {
     if (flag === 1) {
-      if (!HAS_CS) throw new Error('deflate unsupported');
-      const stream = new DecompressionStream('deflate');
-      const writer = stream.writable.getWriter();
+      if (!HAS_CS) return Promise.reject(new Error('deflate unsupported'));
+      var stream = new DecompressionStream('deflate');
+      var writer = stream.writable.getWriter();
       writer.write(buf);
       writer.close();
-      const response = new Response(stream.readable);
-      return await response.text();
+      var response = new Response(stream.readable);
+      return response.text();
     }
     if (flag === 2) {
-      return zd(td.decode(buf));
+      return Promise.resolve(zd(td.decode(buf)));
     }
-    throw new Error('unknown compression flag');
-  };
+    return Promise.reject(new Error('unknown compression flag'));
+  }
 
-  const dk = async (pw, salt) => {
-    const km = await crypto.subtle.importKey('raw', te.encode(pw), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey(
-      { name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' },
-      km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
-    );
-  };
+  function dk(pw, salt) {
+    return crypto.subtle.importKey('raw', te.encode(pw), 'PBKDF2', false, ['deriveKey']).then(function (km) {
+      return crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt: salt, iterations: 200000, hash: 'SHA-256' },
+        km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+      );
+    });
+  }
 
-  const ep = async (text, pw) => {
-    const z = await compress(text);
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const key = await dk(pw, salt);
-    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, z));
-    const out = new Uint8Array(1 + 16 + 12 + ct.length);
-    out[0] = HAS_CS ? 1 : 2;
-    out.set(salt, 1);
-    out.set(iv, 17);
-    out.set(ct, 29);
-    return out;
-  };
+  function ep(text, pw) {
+    return compress(text).then(function (z) {
+      var salt = crypto.getRandomValues(new Uint8Array(16));
+      var iv = crypto.getRandomValues(new Uint8Array(12));
+      return dk(pw, salt).then(function (key) {
+        return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, z).then(function (ctBuf) {
+          var ct = new Uint8Array(ctBuf);
+          var out = new Uint8Array(1 + 16 + 12 + ct.length);
+          out[0] = HAS_CS ? 1 : 2;
+          out.set(salt, 1);
+          out.set(iv, 17);
+          out.set(ct, 29);
+          return out;
+        });
+      });
+    });
+  }
 
-  const dp = async (raw, pw) => {
-    try {
+  function dp(raw, pw) {
+    return Promise.resolve().then(function () {
       if (raw.length < 1 + 16 + 12 + 16) return null;
       if (raw[0] !== 1 && raw[0] !== 2) return null;
-      const flag = raw[0];
-      const salt = raw.slice(1, 17);
-      const iv = raw.slice(17, 29);
-      const ct = raw.slice(29);
-      const key = await dk(pw, salt);
-      const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
-      return await decompress(new Uint8Array(pt), flag);
-    } catch { return null; }
-  };
+      var flag = raw[0];
+      var salt = raw.slice(1, 17);
+      var iv = raw.slice(17, 29);
+      var ct = raw.slice(29);
+      return dk(pw, salt).then(function (key) {
+        return crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ct).then(function (pt) {
+          return decompress(new Uint8Array(pt), flag);
+        });
+      });
+    }).catch(function () { return null; });
+  }
 
-  const bytesToNames = (bytes) => {
-    const parts = [];
-    for (let i = 0; i < bytes.length; i++) parts.push(NAMES[bytes[i]]);
+  function bytesToNames(bytes) {
+    var parts = [];
+    for (var i = 0; i < bytes.length; i++) parts.push(NAMES[bytes[i]]);
     return parts.join('-');
-  };
+  }
 
-  const namesToBytes = (str) => {
-    const parts = str.split('-');
-    const bytes = new Uint8Array(parts.length);
-    for (let i = 0; i < parts.length; i++) {
-      const idx = NAME_INDEX.get(parts[i]);
+  function namesToBytes(str) {
+    var parts = str.split('-');
+    var bytes = new Uint8Array(parts.length);
+    for (var i = 0; i < parts.length; i++) {
+      var idx = NAME_INDEX.get(parts[i]);
       if (idx === undefined) return null;
       bytes[i] = idx;
     }
     return bytes;
-  };
+  }
 
-  const bytesToTech = (bytes) => {
-    const parts = [];
-    for (let i = 0; i < bytes.length; i++) parts.push(TECH[bytes[i]]);
+  function bytesToTech(bytes) {
+    var parts = [];
+    for (var i = 0; i < bytes.length; i++) parts.push(TECH[bytes[i]]);
     return parts.join('-');
-  };
+  }
 
-  const techToBytes = (str) => {
-    const parts = str.split('-');
-    const bytes = new Uint8Array(parts.length);
-    for (let i = 0; i < parts.length; i++) {
-      const idx = TECH_INDEX.get(parts[i]);
+  function techToBytes(str) {
+    var parts = str.split('-');
+    var bytes = new Uint8Array(parts.length);
+    for (var i = 0; i < parts.length; i++) {
+      var idx = TECH_INDEX.get(parts[i]);
       if (idx === undefined) return null;
       bytes[i] = idx;
     }
     return bytes;
-  };
+  }
 
-  const $ = (id) => document.getElementById(id);
-  const root = document.documentElement;
-  const editor = $('editor');
-  const overlay = $('overlay');
-  const pwInput = $('pw');
-  const modalStatus = $('modalStatus');
-  const btnPack = $('btnPack');
-  const btnUnpack = $('btnUnpack');
-  const fontwrap = $('fontwrap');
-  const fontMenu = $('fontMenu');
-  const fontToggle = $('fontToggle');
-  const menuwrap = $('menuwrap');
-  const mainMenu = $('mainMenu');
-  const menuToggle = $('menuToggle');
-  const langBtn = $('lang');
-  const toastEl = $('toast');
-  const infoModal = $('infoModal');
-  const donateModal = $('donateModal');
-  const donateText = $('donateText');
-  const infoText = $('infoText');
-  const convertBtn = $('go');
-  const goLabel = $('goLabel');
-  const copyBtn = $('copyBtn');
-  const copyLinkBtn = $('copyLinkBtn');
-  const modeToggle = $('modeToggle');
-  const modeNames = $('modeNames');
-  const modeTech = $('modeTech');
+  function $(id) { return document.getElementById(id); }
+  var root = document.documentElement;
+  var editor = $('editor');
+  var overlay = $('overlay');
+  var pwInput = $('pw');
+  var modalStatus = $('modalStatus');
+  var btnPack = $('btnPack');
+  var btnUnpack = $('btnUnpack');
+  var fontwrap = $('fontwrap');
+  var fontMenu = $('fontMenu');
+  var fontToggle = $('fontToggle');
+  var menuwrap = $('menuwrap');
+  var mainMenu = $('mainMenu');
+  var menuToggle = $('menuToggle');
+  var langBtn = $('lang');
+  var toastEl = $('toast');
+  var infoModal = $('infoModal');
+  var donateModal = $('donateModal');
+  var donateText = $('donateText');
+  var infoText = $('infoText');
+  var convertBtn = $('go');
+  var goLabel = $('goLabel');
+  var copyBtn = $('copyBtn');
+  var copyLinkBtn = $('copyLinkBtn');
+  var modeToggle = $('modeToggle');
+  var modeNames = $('modeNames');
+  var modeTech = $('modeTech');
 
-  const FONTS = [
+  var FONTS = [
     { name: 'Временной',       enName: 'Times',        stack: "'Times New Roman', Times, serif" },
     { name: 'Антенный',        enName: 'Arial',        stack: "Arial, Helvetica, sans-serif" },
     { name: 'Грузинский',      enName: 'Georgia',      stack: "Georgia, 'Times New Roman', serif" },
@@ -797,10 +804,10 @@
     { name: 'Верданский',      enName: 'Verdana',      stack: "'Verdana', Geneva, sans-serif" }
   ];
 
-  let isEN = false;
-  let currentMode = 'names';
+  var isEN = false;
+  var currentMode = 'names';
 
-  const i18n = {
+  var i18n = {
     ru: {
       title: 'Текстиньо. Текст в ссылке',
       placeholder: 'Ввод...',
@@ -861,37 +868,38 @@
     }
   };
 
-  const setModalStatus = (msg, kind) => {
+  function setModalStatus(msg, kind) {
     modalStatus.textContent = msg || '';
     modalStatus.className = 'modal-status' + (kind ? ' ' + kind : '');
-  };
+  }
 
-  let toastTimer;
-  const showToast = (msg, duration = 3000) => {
+  var toastTimer;
+  function showToast(msg, duration) {
+    if (duration == null) duration = 3000;
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration);
-  };
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, duration);
+  }
 
-  const showModal = (el) => {
+  function showModal(el) {
     el.classList.add('open');
     document.body.classList.add('modal-open');
-  };
+  }
 
-  const hideModal = (el) => {
+  function hideModal(el) {
     el.classList.remove('open');
     document.body.classList.remove('modal-open');
-  };
+  }
 
-  const applyMode = (mode) => {
+  function applyMode(mode) {
     currentMode = mode;
     modeNames.classList.toggle('active', mode === 'names');
     modeTech.classList.toggle('active', mode === 'tech');
-  };
+  }
 
-  const applyLang = (lang) => {
-    const t = i18n[lang];
+  function applyLang(lang) {
+    var t = i18n[lang];
     isEN = (lang === 'en');
     document.title = t.title;
     editor.placeholder = t.placeholder;
@@ -911,159 +919,167 @@
     document.getElementById('modeLabel').textContent = t.modeLabel;
     modeNames.textContent = t.modeNames;
     modeTech.textContent = t.modeTech;
-    fontMenu.querySelectorAll('button').forEach(b => {
-      const f = FONTS.find(x => x.stack === b.dataset.stack);
+    fontMenu.querySelectorAll('button').forEach(function (b) {
+      var f = FONTS.find(function (x) { return x.stack === b.dataset.stack; });
       if (f) b.textContent = isEN ? f.enName : f.name;
     });
     setModalStatus('');
     infoText.textContent = t.infoText;
     donateText.textContent = t.donateText;
-  };
+  }
 
-  langBtn.addEventListener('click', () => applyLang(isEN ? 'ru' : 'en'));
+  langBtn.addEventListener('click', function () { applyLang(isEN ? 'ru' : 'en'); });
 
-  modeToggle.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-mode]');
+  modeToggle.addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-mode]');
     if (!btn) return;
     applyMode(btn.dataset.mode);
   });
 
-  const FONT_KEY = 'pack-font-2';
-  let currentFont = FONTS[0].stack;
+  var FONT_KEY = 'pack-font-2';
+  var currentFont = FONTS[0].stack;
   try {
-    const saved = localStorage.getItem(FONT_KEY);
-    if (saved) { const f = FONTS.find(x => x.stack === saved); if (f) currentFont = f.stack; }
-  } catch {}
+    var savedFont = localStorage.getItem(FONT_KEY);
+    if (savedFont) {
+      var f = FONTS.find(function (x) { return x.stack === savedFont; });
+      if (f) currentFont = f.stack;
+    }
+  } catch (err) {}
 
-  const applyFont = (stack) => {
+  function applyFont(stack) {
     currentFont = stack;
     editor.style.fontFamily = stack;
-    try { localStorage.setItem(FONT_KEY, stack); } catch {}
-    fontMenu.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.stack === stack));
-  };
+    try { localStorage.setItem(FONT_KEY, stack); } catch (err) {}
+    fontMenu.querySelectorAll('button').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.stack === stack);
+    });
+  }
 
-  const makeDropdown = (wrap, toggle, menu) => {
-    const close = () => menu.classList.remove('open');
-    const open = () => menu.classList.add('open');
-    toggle.addEventListener('click', (e) => {
+  function makeDropdown(wrap, toggle, menu) {
+    function close() { menu.classList.remove('open'); }
+    function open() { menu.classList.add('open'); }
+    toggle.addEventListener('click', function (e) {
       e.stopPropagation();
       if (menu.classList.contains('open')) close(); else open();
     });
-    document.addEventListener('click', (e) => {
+    document.addEventListener('click', function (e) {
       if (!wrap.contains(e.target)) close();
     });
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') close();
     });
-    return { open, close };
-  };
+    return { open: open, close: close };
+  }
 
-  const fontDD = makeDropdown(fontwrap, fontToggle, fontMenu);
-  const mainDD = makeDropdown(menuwrap, menuToggle, mainMenu);
+  var fontDD = makeDropdown(fontwrap, fontToggle, fontMenu);
+  var mainDD = makeDropdown(menuwrap, menuToggle, mainMenu);
 
-  FONTS.forEach(f => {
-    const b = document.createElement('button');
+  FONTS.forEach(function (f) {
+    var b = document.createElement('button');
     b.type = 'button';
     b.dataset.stack = f.stack;
     b.style.fontFamily = f.stack;
     b.textContent = f.name;
     if (f.stack === currentFont) b.classList.add('active');
-    b.addEventListener('click', (e) => { e.stopPropagation(); applyFont(f.stack); fontDD.close(); });
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      applyFont(f.stack);
+      fontDD.close();
+    });
     fontMenu.appendChild(b);
   });
   applyFont(currentFont);
 
-  const THEME_KEY = 'pack-theme';
+  var THEME_KEY = 'pack-theme';
   try {
-    const t = localStorage.getItem(THEME_KEY);
-    if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t);
-  } catch {}
+    var savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme === 'light' || savedTheme === 'dark') root.setAttribute('data-theme', savedTheme);
+  } catch (err) {}
 
-  const systemDark = () => matchMedia('(prefers-color-scheme: dark)').matches;
-  const currentTheme = () => {
-    const t = root.getAttribute('data-theme');
+  function systemDark() { return matchMedia('(prefers-color-scheme: dark)').matches; }
+  function currentTheme() {
+    var t = root.getAttribute('data-theme');
     if (t === 'light' || t === 'dark') return t;
     return systemDark() ? 'dark' : 'light';
-  };
-  const applyTheme = (t) => {
+  }
+  function applyTheme(t) {
     root.setAttribute('data-theme', t);
-    try { localStorage.setItem(THEME_KEY, t); } catch {}
-  };
-  const toggleTheme = () => applyTheme(currentTheme() === 'dark' ? 'light' : 'dark');
+    try { localStorage.setItem(THEME_KEY, t); } catch (err) {}
+  }
+  function toggleTheme() { applyTheme(currentTheme() === 'dark' ? 'light' : 'dark'); }
 
-  const SIZE_KEY = 'pack-size';
-  let fontSize = 21;
+  var SIZE_KEY = 'pack-size';
+  var fontSize = 21;
   try {
-    const v = parseInt(localStorage.getItem(SIZE_KEY) || '', 10);
-    if (v >= 14 && v <= 38) fontSize = v;
-  } catch {}
-  const applySize = () => {
-    editor.style.fontSize = fontSize + 'px';
-    try { localStorage.setItem(SIZE_KEY, String(fontSize)); } catch {}
-  };
-  applySize();
-  $('dec').addEventListener('click', () => { if (fontSize > 14) { fontSize -= 2; applySize(); } });
-  $('inc').addEventListener('click', () => { if (fontSize < 38) { fontSize += 2; applySize(); } });
+    var sv = parseInt(localStorage.getItem(SIZE_KEY) || '', 10);
+    if (sv >= 14 && sv <= 38) fontSize = sv;
+  } catch (err) {}
 
-  let growScheduled = false;
-  const grow = () => {
+  function applySize() {
+    editor.style.fontSize = fontSize + 'px';
+    try { localStorage.setItem(SIZE_KEY, String(fontSize)); } catch (err) {}
+  }
+  applySize();
+  $('dec').addEventListener('click', function () { if (fontSize > 14) { fontSize -= 2; applySize(); } });
+  $('inc').addEventListener('click', function () { if (fontSize < 38) { fontSize += 2; applySize(); } });
+
+  var growScheduled = false;
+  function grow() {
     if (growScheduled) return;
     growScheduled = true;
-    requestAnimationFrame(() => {
+    requestAnimationFrame(function () {
       growScheduled = false;
-      const current = editor.offsetHeight;
-      const needed = editor.scrollHeight;
-      if (needed !== current) {
-        editor.style.height = needed + 'px';
-      }
+      var current = editor.offsetHeight;
+      var needed = editor.scrollHeight;
+      if (needed !== current) editor.style.height = needed + 'px';
     });
-  };
+  }
   editor.addEventListener('input', grow);
   window.addEventListener('resize', grow);
-  if (typeof ResizeObserver !== 'undefined') {
-    new ResizeObserver(grow).observe(editor);
-  }
+  if (typeof ResizeObserver !== 'undefined') new ResizeObserver(grow).observe(editor);
   grow();
 
-  const lockBtns = (on) => { btnPack.disabled = on; btnUnpack.disabled = on; };
+  function lockBtns(on) { btnPack.disabled = on; btnUnpack.disabled = on; }
 
-  const setHash = (hash) => {
-    try { history.replaceState(null, '', hash ? '#' + hash : location.pathname + location.search); } catch {}
-  };
+  function setHash(hash) {
+    try {
+      history.replaceState(null, '', hash ? '#' + hash : location.pathname + location.search);
+    } catch (err) {}
+  }
 
-  const extractHash = (input) => {
-    let s = String(input || '').trim();
+  function extractHash(input) {
+    var s = String(input || '').trim();
     if (!s) return '';
-    const i = s.indexOf('#');
+    var i = s.indexOf('#');
     if (i >= 0) s = s.slice(i + 1);
-    try { s = decodeURIComponent(s); } catch {}
+    try { s = decodeURIComponent(s); } catch (err) {}
     return s;
-  };
+  }
 
-  const openModal = () => {
+  function openModal() {
     showModal(overlay);
     setModalStatus('');
     pwInput.value = '';
-    setTimeout(() => pwInput.focus(), 50);
-  };
-  const closeModal = () => hideModal(overlay);
+    setTimeout(function () { pwInput.focus(); }, 50);
+  }
+  function closeModal() { hideModal(overlay); }
 
-  overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) closeModal(); });
-  infoModal.addEventListener('mousedown', (e) => { if (e.target === infoModal) hideModal(infoModal); });
-  donateModal.addEventListener('mousedown', (e) => { if (e.target === donateModal) hideModal(donateModal); });
+  overlay.addEventListener('mousedown', function (e) { if (e.target === overlay) closeModal(); });
+  infoModal.addEventListener('mousedown', function (e) { if (e.target === infoModal) hideModal(infoModal); });
+  donateModal.addEventListener('mousedown', function (e) { if (e.target === donateModal) hideModal(donateModal); });
 
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function (e) {
     if (e.key !== 'Escape') return;
-    [overlay, infoModal, donateModal].forEach(m => {
+    [overlay, infoModal, donateModal].forEach(function (m) {
       if (m.classList.contains('open')) hideModal(m);
     });
   });
 
-  const downloadOffline = () => {
-    const html = '<!doctype html>\n' + document.documentElement.outerHTML;
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+  function downloadOffline() {
+    var html = '<!doctype html>\n' + document.documentElement.outerHTML;
+    var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
     a.href = url;
     a.download = 'TEXTINHO.html';
     document.body.appendChild(a);
@@ -1071,13 +1087,13 @@
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast(i18n[isEN ? 'en' : 'ru'].msgSaved, 4000);
-  };
+  }
 
-  mainMenu.querySelectorAll('button').forEach(b => {
-    b.addEventListener('click', (e) => {
+  mainMenu.querySelectorAll('button').forEach(function (b) {
+    b.addEventListener('click', function (e) {
       e.stopPropagation();
       mainDD.close();
-      const action = b.dataset.action;
+      var action = b.dataset.action;
       if (action === 'theme') toggleTheme();
       else if (action === 'download') downloadOffline();
       else if (action === 'donate') showModal(donateModal);
@@ -1085,94 +1101,97 @@
     });
   });
 
-  const doPack = async () => {
-    const text = editor.value;
-    const pw = pwInput.value;
-    const t = i18n[isEN ? 'en' : 'ru'];
+  function doPack() {
+    var text = editor.value;
+    var pw = pwInput.value;
+    var t = i18n[isEN ? 'en' : 'ru'];
     if (!text) { setModalStatus(t.errEmpty, 'err'); return; }
     if (pw.length < 6 || pw.length > 30) { setModalStatus(t.errLen, 'err'); return; }
 
     lockBtns(true);
     setModalStatus('…');
-    try {
-      const rawHash = await ep(text, pw);
+    ep(text, pw).then(function (rawHash) {
       if (!rawHash) { setModalStatus(t.errError, 'err'); return; }
-      const prefix = currentMode === 'tech' ? 't-' : 'n-';
-      const payload = currentMode === 'tech' ? bytesToTech(rawHash) : bytesToNames(rawHash);
-      const outHash = prefix + payload;
+      var prefix = currentMode === 'tech' ? 't-' : 'n-';
+      var payload = currentMode === 'tech' ? bytesToTech(rawHash) : bytesToNames(rawHash);
+      var outHash = prefix + payload;
       editor.value = outHash;
       grow();
       closeModal();
       if (outHash.length > MAX_URL_LEN) {
         setHash('');
-        setTimeout(() => showToast(t.errLong, 4000), 100);
+        setTimeout(function () { showToast(t.errLong, 4000); }, 100);
       } else {
         setHash(outHash);
       }
-    } catch {
+    }).catch(function () {
       setModalStatus(t.errError, 'err');
-    } finally { lockBtns(false); }
-  };
+    }).then(function () {
+      lockBtns(false);
+    });
+  }
 
-  const doUnpack = async () => {
-    const raw = extractHash(editor.value);
-    const pw = pwInput.value;
-    const t = i18n[isEN ? 'en' : 'ru'];
+  function doUnpack() {
+    var raw = extractHash(editor.value);
+    var pw = pwInput.value;
+    var t = i18n[isEN ? 'en' : 'ru'];
     if (!raw) { setModalStatus(t.errEmpty, 'err'); return; }
     if (pw.length < 6 || pw.length > 30) { setModalStatus(t.errLen, 'err'); return; }
     lockBtns(true);
     setModalStatus('…');
-    try {
-      let bytes = null;
-      if (raw.startsWith('t-')) {
-        bytes = techToBytes(raw.slice(2));
-      } else if (raw.startsWith('n-')) {
-        bytes = namesToBytes(raw.slice(2));
-      } else {
-        bytes = namesToBytes(raw);
-        if (!bytes) bytes = techToBytes(raw);
-      }
-      if (!bytes) { setModalStatus(t.errFail, 'err'); return; }
-      const text = await dp(bytes, pw);
+    var bytes = null;
+    if (raw.indexOf('t-') === 0) bytes = techToBytes(raw.slice(2));
+    else if (raw.indexOf('n-') === 0) bytes = namesToBytes(raw.slice(2));
+    else {
+      bytes = namesToBytes(raw);
+      if (!bytes) bytes = techToBytes(raw);
+    }
+    if (!bytes) {
+      setModalStatus(t.errFail, 'err');
+      lockBtns(false);
+      return;
+    }
+    dp(bytes, pw).then(function (text) {
       if (text === null || text === '') { setModalStatus(t.errFail, 'err'); return; }
       editor.value = text;
       setHash('');
       grow();
       closeModal();
-    } catch { setModalStatus(t.errError, 'err'); }
-    finally { lockBtns(false); }
-  };
+    }).catch(function () {
+      setModalStatus(t.errError, 'err');
+    }).then(function () {
+      lockBtns(false);
+    });
+  }
 
   btnPack.addEventListener('click', doPack);
   btnUnpack.addEventListener('click', doUnpack);
-  pwInput.addEventListener('keydown', (e) => {
+  pwInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') { e.preventDefault(); doPack(); }
   });
 
   convertBtn.addEventListener('click', openModal);
 
-  copyBtn.addEventListener('click', async () => {
-    const text = editor.value;
+  copyBtn.addEventListener('click', function () {
+    var text = editor.value;
     if (!text) return;
-    try {
-      await navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).then(function () {
       showToast(i18n[isEN ? 'en' : 'ru'].copied, 2000);
-    } catch {
+    }).catch(function () {
       showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
-    }
+    });
   });
 
-  copyLinkBtn.addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText(location.href);
+  copyLinkBtn.addEventListener('click', function () {
+    navigator.clipboard.writeText(location.href).then(function () {
       showToast(i18n[isEN ? 'en' : 'ru'].linkCopied, 2000);
-    } catch {
+    }).catch(function () {
       showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
-    }
+    });
   });
 
   if (location.hash && location.hash.length > 1) {
-    const fromHash = extractHash(location.hash);
+    var fromHash = extractHash(location.hash);
     if (fromHash) { editor.value = fromHash; setHash(fromHash); grow(); }
   }
 
