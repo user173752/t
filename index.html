@@ -13,6 +13,7 @@
 <style>
   :root{
     --bg:#f6f1e7;
+    --bg-2:#fbf7ee;
     --text:#2b2620;
     --muted:#8a8172;
     --line:#e2d9c6;
@@ -49,10 +50,7 @@
   html{height:100%}
   body{
     margin:0;
-    height:100dvh;
-    display:flex;
-    flex-direction:column;
-    overflow:hidden;
+    min-height:100vh;
     background:
       radial-gradient(1200px 700px at 50% -10%, var(--bg-2), transparent 60%),
       var(--bg);
@@ -66,15 +64,12 @@
   }
   body.modal-open { overflow: hidden; }
   .wrap{
-    width:100%;
     max-width:680px;
     margin:0 auto;
-    padding:46px 30px 24px;
+    padding:46px 30px calc(1.75em * 2 + env(safe-area-inset-bottom));
+    position:relative;
     display:flex;
     flex-direction:column;
-    flex:1 1 auto;
-    min-height:0;
-    position:relative;
   }
   .bar{
     display:flex; align-items:center; justify-content:space-between;
@@ -141,50 +136,74 @@
   .fontmenu button.active{color:var(--accent); font-weight:700}
   .editor{
     width:100%;
-    flex:1 1 auto;
-    min-height:0;
     border:0; outline:none; resize:none;
     background:transparent; color:var(--text);
     font:inherit; line-height:1.75;
     padding:0;
     letter-spacing:.005em;
-    overflow-y:auto;
+    overflow:hidden;
     position:relative;
     z-index:1;
-    -webkit-overflow-scrolling:touch;
+    min-height:1.75em;
   }
   .editor::placeholder{color:var(--muted); font-style:italic; opacity:.7}
+
   .foot{
-    display:flex; align-items:center;
-    margin-top:32px;
-    flex:0 0 auto;
-    position:relative;
-    min-height:44px;
+    position:fixed;
+    left:0; right:0;
+    bottom:calc(1em + env(safe-area-inset-bottom));
+    z-index:40;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 30px;
+    pointer-events:none;
+    background:linear-gradient(to bottom, transparent 0, var(--bg) 45%, var(--bg) 100%);
   }
-  .foot .convert{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
+  .foot > *{ pointer-events:auto; }
+  .convert{
     appearance:none; border:0; background:transparent;
     color:var(--muted);
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    font-size:15px; font-weight:400; line-height:1; letter-spacing:0;
-    padding:6px 10px; cursor:default;
+    font-size:15px; font-weight:400; line-height:1.75;
+    padding:.5em .8em;
+    margin:0;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:.35em;
     -webkit-tap-highlight-color:transparent;
-    white-space:nowrap;
+    transition:color .2s;
   }
-  .foot .convert:focus{outline:none}
-  .foot .copy-text{
-    display:none;
+  .convert:hover{ color:var(--text); }
+  .convert:focus{ outline:none; }
+  .convert i{
+    display:block;
+    width:1.1em;
+    height:1px;
+    background:var(--muted);
+    transition:width .2s, background .2s;
+  }
+  .convert:hover i,
+  .convert:focus-visible i{ width:1.5em; background:var(--text); }
+
+  .copy-text{
+    position:absolute;
+    left:30px;
     appearance:none; border:0; background:transparent;
-    color:var(--muted); font:inherit;
-    font-family:monospace;
-    font-size:15px;
-    padding:0;
-    cursor:default;
+    color:var(--muted);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:15px; line-height:1.75;
+    padding:.5em .8em;
+    margin:0;
+    cursor:pointer;
+    display:none;
     -webkit-tap-highlight-color:transparent;
-    margin-right:auto;
+    transition:color .2s;
   }
+  .copy-text:hover{ color:var(--text); }
+  .copy-text:focus{ outline:none; }
+
   .overlay{
     position:fixed; inset:0; background:var(--overlay);
     display:none; align-items:center; justify-content:center;
@@ -234,7 +253,7 @@
   .modal-status.err{color:#a8442f}
   .modal-status.ok{color:#4a7a3a}
   .toast{
-    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
+    position:fixed; bottom:calc(4em + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--panel); color:var(--text); border:1px solid var(--line);
     padding:12px 20px; border-radius:8px; box-shadow:var(--shadow);
     font-size:14px; opacity:0; pointer-events:none;
@@ -290,7 +309,7 @@
     .passrow .pw{ grid-area:pw; }
     #btnUnpack{ grid-area:unpack; }
     #btnPack{ grid-area:pack; }
-    .foot .copy-text{ display:block; }
+    .copy-text{ display:block; }
   }
 </style>
 </head>
@@ -319,12 +338,12 @@
     </div>
   </div>
 
-  <textarea class="editor" id="editor" placeholder="Ввод..." spellcheck="false"></textarea>
+  <textarea class="editor" id="editor" rows="1" placeholder="Ввод..." spellcheck="false"></textarea>
+</div>
 
-  <div class="foot">
-    <button class="copy-text" id="copyEditor">Скопировать</button>
-    <button class="convert" id="go">#преобразовать</button>
-  </div>
+<div class="foot">
+  <button class="copy-text" id="copyEditor">Скопировать</button>
+  <button class="convert" id="go"><span>#</span><i></i></button>
 </div>
 
 <div class="overlay" id="overlay">
@@ -729,7 +748,8 @@
     btnPack.title = t.packTitle;
     btnUnpack.title = t.unpackTitle;
     copyBtn.textContent = t.copyText;
-    convertBtn.textContent = t.convert;
+    convertBtn.querySelector('span').textContent = '#';
+    convertBtn.setAttribute('aria-label', t.convert);
     menuToggle.textContent = t.menuLabel;
     mainMenu.querySelector('[data-action="theme"]').textContent = t.theme;
     mainMenu.querySelector('[data-action="download"]').textContent = t.offline;
@@ -825,24 +845,15 @@
   $('dec').addEventListener('click', () => { if (fontSize > 14) { fontSize -= 2; applySize(); } });
   $('inc').addEventListener('click', () => { if (fontSize < 38) { fontSize += 2; applySize(); } });
 
-  let growTimer = null;
   let growScheduled = false;
+  let growTimer = null;
   const grow = () => {
     if (growScheduled) return;
     growScheduled = true;
     requestAnimationFrame(() => {
       growScheduled = false;
-      const wrapEl = document.querySelector('.wrap');
-      const barEl = document.querySelector('.bar');
-      const footEl = document.querySelector('.foot');
-      const cs = getComputedStyle(wrapEl);
-      const avail = wrapEl.clientHeight
-        - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)
-        - barEl.offsetHeight - footEl.offsetHeight;
-      const target = Math.max(avail, 200);
-      if (Math.abs(editor.offsetHeight - target) > 1) {
-        editor.style.height = target + 'px';
-      }
+      editor.style.height = 'auto';
+      editor.style.height = editor.scrollHeight + 'px';
     });
   };
   const scheduleGrow = () => {
@@ -850,12 +861,9 @@
     growTimer = setTimeout(grow, 120);
   };
   editor.addEventListener('input', scheduleGrow);
-  window.addEventListener('resize', () => { clearTimeout(growTimer); grow(); });
+  window.addEventListener('resize', grow);
   if (typeof ResizeObserver !== 'undefined') {
-    const ro = new ResizeObserver(() => { clearTimeout(growTimer); grow(); });
-    ro.observe(document.querySelector('.wrap'));
-    ro.observe(document.querySelector('.bar'));
-    ro.observe(document.querySelector('.foot'));
+    new ResizeObserver(grow).observe(editor);
   }
   grow();
 
