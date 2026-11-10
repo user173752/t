@@ -1,4 +1,3 @@
-html
 <!doctype html>
 <html lang="ru" data-theme="auto">
 <head>
@@ -296,7 +295,6 @@ html
   }
   .info-text::-webkit-scrollbar{ display:none; }
 
-  /* mode toggle */
   .mode-row{
     margin-top:14px;
     display:flex;
@@ -383,6 +381,14 @@ html
         </div>
       </div>
       <button class="text-btn lang" id="lang">Eng</button>
+      <button class="text-btn" id="copyLinkBtn" aria-label="Копировать ссылку">
+        <span class="copy-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11 4"></path>
+            <path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07L13 19"></path>
+          </svg>
+        </span>
+      </button>
       <button class="text-btn" id="copyBtn" aria-label="Копировать">
         <span class="copy-icon">
           <svg viewBox="0 0 24 24">
@@ -401,7 +407,7 @@ html
   <div class="modal" role="dialog" aria-modal="true">
     <div class="passrow">
       <button class="act" id="btnUnpack">↶</button>
-      <input class="pw" id="pw" type="text" maxlength="10" placeholder="••••••••••" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="nope-please-ignore" aria-label="Поле">
+      <input class="pw" id="pw" type="text" maxlength="30" placeholder="••••••••••" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" name="nope-please-ignore" aria-label="Поле">
       <button class="act pack" id="btnPack">→</button>
     </div>
     <div class="mode-row">
@@ -477,7 +483,6 @@ html
     "Iraida","Iya","Kapitolina","Karina","Klavdiya"
   ];
 
-  // 256 технических названий (после удаления 15 «не технических»)
   const TECH = [
     "8","9","X",
     "10","11","12","13","14","15","16","17",
@@ -666,8 +671,9 @@ html
     return te.encode(zc(text));
   };
 
-  const decompress = async (buf) => {
-    if (HAS_CS) {
+  const decompress = async (buf, flag) => {
+    if (flag === 1) {
+      if (!HAS_CS) throw new Error('deflate unsupported');
       const stream = new DecompressionStream('deflate');
       const writer = stream.writable.getWriter();
       writer.write(buf);
@@ -675,7 +681,10 @@ html
       const response = new Response(stream.readable);
       return await response.text();
     }
-    return zd(td.decode(buf));
+    if (flag === 2) {
+      return zd(td.decode(buf));
+    }
+    throw new Error('unknown compression flag');
   };
 
   const dk = async (pw, salt) => {
@@ -704,12 +713,13 @@ html
     try {
       if (raw.length < 1 + 16 + 12 + 16) return null;
       if (raw[0] !== 1 && raw[0] !== 2) return null;
+      const flag = raw[0];
       const salt = raw.slice(1, 17);
       const iv = raw.slice(17, 29);
       const ct = raw.slice(29);
       const key = await dk(pw, salt);
       const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
-      return await decompress(new Uint8Array(pt));
+      return await decompress(new Uint8Array(pt), flag);
     } catch { return null; }
   };
 
@@ -770,6 +780,7 @@ html
   const convertBtn = $('go');
   const goLabel = $('goLabel');
   const copyBtn = $('copyBtn');
+  const copyLinkBtn = $('copyLinkBtn');
   const modeToggle = $('modeToggle');
   const modeNames = $('modeNames');
   const modeTech = $('modeTech');
@@ -796,13 +807,14 @@ html
       packTitle: 'Упаковать',
       unpackTitle: 'Распаковать',
       errEmpty: 'Пусто',
-      errLen: '10 символов',
+      errLen: '6–30 символов',
       errLong: 'Ссылка слишком длинная, пересылайте текстом',
       errFail: 'Нет',
       errError: 'Ошибка',
       msgSaved: 'Офлайнутся',
       copied: 'Скопировано',
       copyError: 'Ошибка',
+      linkCopied: 'Текст в ссылке',
       menuLabel: 'Сюда',
       theme: 'Тема',
       offline: 'Офлайн',
@@ -811,6 +823,7 @@ html
       hashBtn: '#Применить',
       hashAria: 'Применить',
       copyAria: 'Копировать',
+      copyLinkAria: 'Копировать ссылку',
       infoText: '?',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       modeLabel: 'Словарь:',
@@ -823,13 +836,14 @@ html
       packTitle: 'Pack',
       unpackTitle: 'Unpack',
       errEmpty: 'Empty',
-      errLen: '10 characters',
+      errLen: '6–30 characters',
       errLong: 'Link too long, send as text',
       errFail: 'None',
       errError: 'Error',
       msgSaved: 'Use offline',
       copied: 'Copied',
       copyError: 'Error',
+      linkCopied: 'Text in the link',
       menuLabel: 'Here',
       theme: 'Theme',
       offline: 'Offline',
@@ -838,6 +852,7 @@ html
       hashBtn: '#Apply',
       hashAria: 'Apply',
       copyAria: 'Copy',
+      copyLinkAria: 'Copy link',
       infoText: '?',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       modeLabel: 'Dictionary:',
@@ -885,6 +900,7 @@ html
     goLabel.textContent = t.hashBtn;
     convertBtn.setAttribute('aria-label', t.hashAria);
     copyBtn.setAttribute('aria-label', t.copyAria);
+    copyLinkBtn.setAttribute('aria-label', t.copyLinkAria);
     menuToggle.textContent = t.menuLabel;
     mainMenu.querySelector('[data-action="theme"]').textContent = t.theme;
     mainMenu.querySelector('[data-action="download"]').textContent = t.offline;
@@ -1074,7 +1090,7 @@ html
     const pw = pwInput.value;
     const t = i18n[isEN ? 'en' : 'ru'];
     if (!text) { setModalStatus(t.errEmpty, 'err'); return; }
-    if (pw.length !== 10) { setModalStatus(t.errLen, 'err'); return; }
+    if (pw.length < 6 || pw.length > 30) { setModalStatus(t.errLen, 'err'); return; }
 
     lockBtns(true);
     setModalStatus('…');
@@ -1103,7 +1119,7 @@ html
     const pw = pwInput.value;
     const t = i18n[isEN ? 'en' : 'ru'];
     if (!raw) { setModalStatus(t.errEmpty, 'err'); return; }
-    if (pw.length !== 10) { setModalStatus(t.errLen, 'err'); return; }
+    if (pw.length < 6 || pw.length > 30) { setModalStatus(t.errLen, 'err'); return; }
     lockBtns(true);
     setModalStatus('…');
     try {
@@ -1113,7 +1129,6 @@ html
       } else if (raw.startsWith('n-')) {
         bytes = namesToBytes(raw.slice(2));
       } else {
-        // обратная совместимость: без префикса сначала имена, потом техника
         bytes = namesToBytes(raw);
         if (!bytes) bytes = techToBytes(raw);
       }
@@ -1142,6 +1157,15 @@ html
     try {
       await navigator.clipboard.writeText(text);
       showToast(i18n[isEN ? 'en' : 'ru'].copied, 2000);
+    } catch {
+      showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
+    }
+  });
+
+  copyLinkBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(location.href);
+      showToast(i18n[isEN ? 'en' : 'ru'].linkCopied, 2000);
     } catch {
       showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
     }
