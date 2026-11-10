@@ -85,7 +85,7 @@
     transition:background-color .3s ease;
   }
   body.modal-open { overflow: hidden; }
-  
+
   .wrap{
     max-width:680px;
     margin:0 auto;
@@ -94,23 +94,35 @@
     display:flex;
     flex-direction:column;
   }
-  
+
   .bar{
-    display:flex; align-items:center; justify-content:space-between;
-    gap:24px; 
+    display:flex;
+    flex-direction:column;
+    gap:16px;
     margin-bottom:36px;
-    font-size:15px; color:var(--muted);
-    user-select:none;
+    padding-bottom:20px;
     border-bottom:1px solid var(--line);
+    font-size:15px;
+    color:var(--muted);
+    user-select:none;
     position:relative;
     z-index:30;
     flex:0 0 auto;
-    padding-bottom:20px;
   }
-  
-  .bar-left { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
-  .bar-right { display:flex; align-items:center; gap:20px; flex-wrap:wrap; justify-content:flex-end; }
-  
+  .bar-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .bar-group{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+
   .sizer{ display:flex; align-items:center; gap:2px; }
   .sizer button{
     appearance:none; border:0; background:transparent;
@@ -123,10 +135,10 @@
     transition:color .2s;
   }
   .sizer button:focus{outline:none}
-  
+
   .text-btn{
-    appearance:none; 
-    border:0 !important; 
+    appearance:none;
+    border:0 !important;
     background:transparent !important;
     box-shadow:none !important;
     outline:none !important;
@@ -141,14 +153,14 @@
   }
   .text-btn:focus,
   .text-btn:active,
-  .text-btn:hover { 
-    outline: none !important; 
+  .text-btn:hover {
+    outline: none !important;
     box-shadow: none !important;
     border: 0 !important;
     background: transparent !important;
   }
   .text-btn::-moz-focus-inner { border: 0; }
-  
+
   .fontwrap{ position:relative; display:inline-flex; align-items:center; }
   .menuwrap{ position:relative; display:inline-flex; align-items:center; }
   .fontmenu{
@@ -197,7 +209,7 @@
     display: none;
   }
   .editor::placeholder{color:var(--muted); font-style:italic; opacity:.7}
-  
+
   .copy-icon {
     display: inline-flex;
     align-items: center;
@@ -329,22 +341,8 @@
     background:var(--accent);
     color:var(--bg);
   }
-  
+
   @media (max-width: 600px) {
-    .bar {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 15px;
-    }
-    .bar-right {
-      order: -1;
-      width: 100%;
-      justify-content: space-between;
-    }
-    .bar-left {
-      width: 100%;
-      justify-content: space-between;
-    }
     .passrow {
       grid-template-columns: 1fr auto;
       grid-template-areas:
@@ -361,43 +359,51 @@
 <body>
 <div class="wrap">
   <div class="bar">
-    <div class="bar-left">
-      <button class="text-btn" id="dec" aria-label="Меньше">−</button>
-      <div class="fontwrap" id="fontwrap">
-        <button class="text-btn" id="fontToggle">Шрифт</button>
-        <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
+    <div class="bar-row">
+      <div class="bar-group">
+        <button class="text-btn" id="dec" aria-label="Меньше">−</button>
+        <div class="fontwrap" id="fontwrap">
+          <button class="text-btn" id="fontToggle">Шрифт</button>
+          <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
+        </div>
+        <button class="text-btn" id="inc" aria-label="Больше">+</button>
       </div>
-      <button class="text-btn" id="inc" aria-label="Больше">+</button>
-    </div>
-    <div class="bar-right">
-      <button class="text-btn" id="go"><span id="goLabel">#Применить</span></button>
-      <div class="menuwrap" id="menuwrap">
-        <button class="text-btn" id="menuToggle">Сюда</button>
-        <div class="fontmenu" id="mainMenu" role="menu" aria-label="Меню">
-          <button type="button" data-action="theme">Тема</button>
-          <button type="button" data-action="download">Офлайн</button>
-          <button type="button" data-action="donate">Биток</button>
-          <button type="button" data-action="info">Инфо</button>
+      <div class="bar-group">
+        <button class="text-btn lang" id="lang">Eng</button>
+        <div class="menuwrap" id="menuwrap">
+          <button class="text-btn" id="menuToggle">Сюда</button>
+          <div class="fontmenu" id="mainMenu" role="menu" aria-label="Меню">
+            <button type="button" data-action="theme">Тема</button>
+            <button type="button" data-action="download">Офлайн</button>
+            <button type="button" data-action="donate">Биток</button>
+            <button type="button" data-action="info">Инфо</button>
+          </div>
         </div>
       </div>
-      <button class="text-btn lang" id="lang">Eng</button>
-      <button class="text-btn" id="copyLinkBtn" aria-label="Копировать ссылку">
-        <span class="copy-icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M9.5 14.5l5-5"></path>
-            <path d="M11 17l-1.5 1.5a4 4 0 0 1-5.66-5.66L5.5 11.18"></path>
-            <path d="M13 7l1.5-1.5a4 4 0 0 1 5.66 5.66L18.5 12.82"></path>
-          </svg>
-        </span>
-      </button>
-      <button class="text-btn" id="copyBtn" aria-label="Копировать">
-        <span class="copy-icon">
-          <svg viewBox="0 0 24 24">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-        </span>
-      </button>
+    </div>
+    <div class="bar-row">
+      <div class="bar-group">
+        <button class="text-btn" id="go"><span id="goLabel">#Применить</span></button>
+      </div>
+      <div class="bar-group">
+        <button class="text-btn" id="copyLinkBtn" aria-label="Копировать ссылку">
+          <span class="copy-icon">
+            <svg viewBox="0 0 24 24">
+              <path d="M9.5 14.5l5-5"></path>
+              <path d="M11 17l-1.5 1.5a4 4 0 0 1-5.66-5.66L5.5 11.18"></path>
+              <path d="M13 7l1.5-1.5a4 4 0 0 1 5.66 5.66L18.5 12.82"></path>
+            </svg>
+          </span>
+        </button>
+        <button class="text-btn" id="copyBtn" aria-label="Копировать">
+          <span class="copy-icon">
+            <svg viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+          </span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -457,6 +463,7 @@
   var A = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
   var L = (function () { var m = Object.create(null); for (var i = 0; i < A.length; i++) m[A[i]] = i; return m; })();
   var HAS_CS = typeof CompressionStream !== 'undefined' && typeof DecompressionStream !== 'undefined';
+  var HAS_SUBTLE = !!(window.crypto && window.crypto.subtle && typeof window.crypto.subtle.importKey === 'function');
 
   var NAME_INDEX = new Map();
   for (var ni = 0; ni < 256; ni++) NAME_INDEX.set(NAMES[ni], ni);
@@ -502,20 +509,19 @@
           var v1 = w.charCodeAt(0);
           for (var k2 = 0; k2 < 8; k2++) { em(v1 & 1); v1 >>= 1; }
         } else {
-          var v2 = 1;
-          for (var k3 = 0; k3 < nb; k3++) { em(v2 & 1); v2 >>= 1; }
+          for (var k3 = 0; k3 < nb; k3++) em(k3 === 0 ? 1 : 0);
           var vv = w.charCodeAt(0);
           for (var k4 = 0; k4 < 16; k4++) { em(vv & 1); vv >>= 1; }
         }
+        delete tc[w];
         ei--;
         if (ei === 0) { ei = Math.pow(2, nb); nb++; }
-        delete tc[w];
       } else {
         var v3 = d[w];
         for (var k5 = 0; k5 < nb; k5++) { em(v3 & 1); v3 >>= 1; }
+        ei--;
+        if (ei === 0) { ei = Math.pow(2, nb); nb++; }
       }
-      ei--;
-      if (ei === 0) { ei = Math.pow(2, nb); nb++; }
     }
     for (var i = 0; i < s.length; i++) {
       var c = s.charAt(i);
@@ -595,6 +601,29 @@
     }
   }
 
+  function jsCipher(data, pw) {
+    var keyBytes = [];
+    for (var i = 0; i < pw.length; i++) keyBytes.push(pw.charCodeAt(i) & 0xFF);
+    keyBytes.push((pw.length * 31 + 7) & 0xFF);
+    var S = new Uint8Array(256);
+    for (var i = 0; i < 256; i++) S[i] = i;
+    var j = 0;
+    var keyLen = keyBytes.length;
+    for (var i = 0; i < 256; i++) {
+      j = (j + S[i] + keyBytes[i % keyLen]) & 255;
+      var t = S[i]; S[i] = S[j]; S[j] = t;
+    }
+    var out = new Uint8Array(data.length);
+    var a = 0, b = 0;
+    for (var i = 0; i < data.length; i++) {
+      a = (a + 1) & 255;
+      b = (b + S[a]) & 255;
+      var t = S[a]; S[a] = S[b]; S[b] = t;
+      out[i] = data[i] ^ S[(S[a] + S[b]) & 255];
+    }
+    return out;
+  }
+
   function compress(text) {
     if (HAS_CS) {
       var stream = new CompressionStream('deflate');
@@ -626,13 +655,25 @@
   function dk(pw, salt) {
     return crypto.subtle.importKey('raw', te.encode(pw), 'PBKDF2', false, ['deriveKey']).then(function (km) {
       return crypto.subtle.deriveKey(
-        { name: 'PBKDF2', salt: salt, iterations: 200000, hash: 'SHA-256' },
+        { name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' },
         km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
       );
     });
   }
 
   function ep(text, pw) {
+    if (!HAS_SUBTLE) {
+      var z = te.encode(zc(wf(text)));
+      var payload = new Uint8Array(2 + z.length);
+      payload[0] = 0x7A;
+      payload[1] = 0xC3;
+      payload.set(z, 2);
+      var ct = jsCipher(payload, pw);
+      var out = new Uint8Array(1 + ct.length);
+      out[0] = 3;
+      out.set(ct, 1);
+      return Promise.resolve(out);
+    }
     return compress(text).then(function (z) {
       var salt = crypto.getRandomValues(new Uint8Array(16));
       var iv = crypto.getRandomValues(new Uint8Array(12));
@@ -652,9 +693,17 @@
 
   function dp(raw, pw) {
     return Promise.resolve().then(function () {
-      if (raw.length < 1 + 16 + 12 + 16) return null;
-      if (raw[0] !== 1 && raw[0] !== 2) return null;
+      if (!raw || raw.length < 2) return null;
       var flag = raw[0];
+      if (flag === 3) {
+        var ct3 = raw.slice(1);
+        var pt3 = jsCipher(ct3, pw);
+        if (pt3.length < 2 || pt3[0] !== 0x7A || pt3[1] !== 0xC3) return null;
+        return zd(td.decode(pt3.slice(2)));
+      }
+      if (flag !== 1 && flag !== 2) return null;
+      if (!HAS_SUBTLE) return null;
+      if (raw.length < 1 + 16 + 12 + 16) return null;
       var salt = raw.slice(1, 17);
       var iv = raw.slice(17, 29);
       var ct = raw.slice(29);
@@ -754,6 +803,7 @@
       errLong: 'Ссылка слишком длинная, пересылайте текстом',
       errFail: 'Нет',
       errError: 'Ошибка',
+      errNoCrypto: 'Браузер не поддерживает шифрование',
       msgSaved: 'Офлайнутся',
       copied: 'Копия снята',
       copyError: 'Ошибка',
@@ -783,6 +833,7 @@
       errLong: 'Link too long, send as text',
       errFail: 'None',
       errError: 'Error',
+      errNoCrypto: 'Browser does not support encryption',
       msgSaved: 'Use offline',
       copied: 'Copied',
       copyError: 'Error',
@@ -796,7 +847,7 @@
       hashAria: 'Apply',
       copyAria: 'Copy',
       copyLinkAria: 'Copy link',
-      infoText: 'A infote tool that turns text into a compact, shareable link. Everything happens locally in your browser — no data is sent anywhere. For complete independence, download the HTML file and use it offline, without an internet connection. [ybrjujytn@proton.me]',
+      infoText: 'A simple tool that turns text into a compact, shareable link. Everything happens locally in your browser — no data is sent anywhere. For complete independence, download the HTML file and use it offline, without an internet connection. [ybrjujytn@proton.me]',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       modeLabel: 'Dictionary:',
       modeNames: 'Names',
@@ -965,13 +1016,18 @@
     growScheduled = true;
     requestAnimationFrame(function () {
       growScheduled = false;
-      var current = editor.offsetHeight;
       var needed = editor.scrollHeight;
-      if (needed !== current) editor.style.height = needed + 'px';
+      if (needed !== editor.offsetHeight) editor.style.height = needed + 'px';
+      var rect = editor.getBoundingClientRect();
+      var vv = window.visualViewport;
+      var vh = vv ? vv.height : window.innerHeight;
+      var overflow = rect.bottom - vh + 80;
+      if (overflow > 0) window.scrollBy(0, overflow);
     });
   }
   editor.addEventListener('input', grow);
   window.addEventListener('resize', grow);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', grow);
   if (typeof ResizeObserver !== 'undefined') new ResizeObserver(grow).observe(editor);
   grow();
 
@@ -1108,10 +1164,51 @@
 
   convertBtn.addEventListener('click', openModal);
 
+  function copyText(text) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '0';
+      ta.style.width = '1px';
+      ta.style.height = '1px';
+      ta.style.padding = '0';
+      ta.style.border = 'none';
+      ta.style.outline = 'none';
+      ta.style.boxShadow = 'none';
+      ta.style.background = 'transparent';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      if (/ipad|ipod|iphone/i.test(navigator.userAgent)) {
+        try {
+          var range = document.createRange();
+          range.selectNodeContents(ta);
+          var sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          ta.setSelectionRange(0, 999999);
+        } catch (err) {}
+      }
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (err) {}
+      document.body.removeChild(ta);
+      if (ok) resolve();
+      else reject(new Error('copy failed'));
+    });
+  }
+
   copyBtn.addEventListener('click', function () {
     var text = editor.value;
     if (!text) return;
-    navigator.clipboard.writeText(text).then(function () {
+    copyText(text).then(function () {
       showToast(i18n[isEN ? 'en' : 'ru'].copied, 2000);
     }).catch(function () {
       showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
@@ -1119,7 +1216,7 @@
   });
 
   copyLinkBtn.addEventListener('click', function () {
-    navigator.clipboard.writeText(location.href).then(function () {
+    copyText(location.href).then(function () {
       showToast(i18n[isEN ? 'en' : 'ru'].linkCopied, 2000);
     }).catch(function () {
       showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
