@@ -190,6 +190,11 @@
     position:relative;
     z-index:1;
     min-height:1.75em;
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+  }
+  .editor::-webkit-scrollbar {
+    display: none;
   }
   .editor::placeholder{color:var(--muted); font-style:italic; opacity:.7}
   
