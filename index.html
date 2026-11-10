@@ -148,12 +148,7 @@
     padding:0; cursor:default;
     border-radius:10px;
     position:relative;
-    transition:transform .55s cubic-bezier(.2,.8,.3,1.35), box-shadow .45s ease, color .6s ease;
-  }
-  .sizer button:active{
-    transform:scale(.88);
-    box-shadow:0 0 20px 2px var(--press-glow);
-    transition:transform .1s cubic-bezier(.3,.7,.4,1), box-shadow .08s ease;
+    transition:color .6s ease;
   }
   .sizer button:focus{outline:none}
 
@@ -171,13 +166,8 @@
     align-items:center;
     position:relative;
     letter-spacing:.02em;
-    transition:transform .55s cubic-bezier(.2,.8,.3,1.35), box-shadow .45s ease, color .6s ease;
+    transition:color .6s ease;
     -webkit-tap-highlight-color: transparent;
-  }
-  .text-btn:active{
-    transform:scale(.9);
-    box-shadow:0 0 22px 2px var(--press-glow) !important;
-    transition:transform .1s cubic-bezier(.3,.7,.4,1), box-shadow .08s ease;
   }
   .text-btn:focus,
   .text-btn:active,
@@ -186,6 +176,65 @@
     border: 0 !important;
   }
   .text-btn::-moz-focus-inner { border: 0; }
+
+  .text-btn::before,
+  .sizer button::before,
+  .fontmenu button::before,
+  .passrow .act::before,
+  .text-btn::after,
+  .sizer button::after,
+  .fontmenu button::after,
+  .passrow .act::after{
+    content:"";
+    position:absolute;
+    left:-3px;
+    right:-3px;
+    height:1px;
+    background:currentColor;
+    opacity:0;
+    pointer-events:none;
+    z-index:3;
+    will-change:transform,opacity;
+  }
+  .text-btn::before,
+  .sizer button::before,
+  .fontmenu button::before,
+  .passrow .act::before { top:32%; }
+  .text-btn::after,
+  .sizer button::after,
+  .fontmenu button::after,
+  .passrow .act::after { top:66%; }
+
+  @keyframes glitch-line-a{
+    0%   { opacity:0; transform:translateX(-6px) scaleX(.3); }
+    10%  { opacity:1; transform:translateX(0) scaleX(1); }
+    25%  { opacity:.85; transform:translateX(4px) scaleX(.6); }
+    40%  { opacity:0; transform:translateX(0) scaleX(.4); }
+    55%  { opacity:.9; transform:translateX(-3px) scaleX(.9); }
+    75%  { opacity:0; transform:translateX(5px) scaleX(.4); }
+    100% { opacity:0; transform:translateX(0) scaleX(0); }
+  }
+  @keyframes glitch-line-b{
+    0%   { opacity:0; transform:translateX(5px) scaleX(.5); }
+    15%  { opacity:1; transform:translateX(-2px) scaleX(1); }
+    30%  { opacity:.7; transform:translateX(-4px) scaleX(.5); }
+    50%  { opacity:0; transform:translateX(0) scaleX(.6); }
+    65%  { opacity:.95; transform:translateX(3px) scaleX(.8); }
+    80%  { opacity:0; transform:translateX(-6px) scaleX(.3); }
+    100% { opacity:0; transform:translateX(0) scaleX(0); }
+  }
+  @keyframes glitch-jitter{
+    0%   { translate:0 0; }
+    20%  { translate:-1.5px 0; }
+    40%  { translate:1px 0; }
+    60%  { translate:-1px 0; }
+    80%  { translate:1.5px 0; }
+    100% { translate:0 0; }
+  }
+
+  .glitch{ animation:glitch-jitter .32s steps(2, end) both; }
+  .glitch::before{ animation:glitch-line-a .42s steps(1, end) both; }
+  .glitch::after{ animation:glitch-line-b .42s steps(1, end) both; }
 
   .fontwrap{ position:relative; display:inline-flex; align-items:center; }
   .menuwrap{ position:relative; display:inline-flex; align-items:center; }
@@ -224,13 +273,8 @@
     cursor:default;
     text-align:left;
     position:relative;
-    transition:transform .5s cubic-bezier(.2,.8,.3,1.35), box-shadow .45s ease, color .6s ease;
+    transition:color .6s ease;
     -webkit-tap-highlight-color:transparent;
-  }
-  .fontmenu button:active{
-    transform:scale(.96);
-    box-shadow:0 0 18px 2px var(--press-glow);
-    transition:transform .1s cubic-bezier(.3,.7,.4,1), box-shadow .08s ease;
   }
   .fontmenu button.active{color:var(--accent); font-weight:700}
 
@@ -326,12 +370,8 @@
     border-radius:12px;
     -webkit-tap-highlight-color:transparent;
     padding:0 12px;
-    transition:transform .5s cubic-bezier(.2,.8,.3,1.35), border-color .2s ease, opacity .2s ease, box-shadow .45s ease, background-color .6s ease, color .6s ease;
-  }
-  .passrow .act:active:not([disabled]){
-    transform:scale(.92);
-    box-shadow:0 0 24px 2px var(--press-glow);
-    transition:transform .1s cubic-bezier(.3,.7,.4,1), box-shadow .08s ease;
+    position:relative;
+    transition:border-color .2s ease, opacity .2s ease, background-color .6s ease, color .6s ease;
   }
   .passrow .act[disabled]{opacity:.4}
   .passrow .act.pack{
@@ -393,9 +433,11 @@
     .wrap, .fontmenu.open, .overlay.open, .overlay.open .modal{
       animation-duration:.01ms !important;
     }
+    .glitch, .glitch::before, .glitch::after{
+      animation:none !important;
+    }
     *{
       transition-duration:.01ms !important;
-      animation-duration:.01ms !important;
     }
   }
 
@@ -776,6 +818,25 @@
   const convertBtn = $('go');
   const goLabel = $('goLabel');
   const copyBtn = $('copyBtn');
+
+  const GLITCH_SELECTOR = '.text-btn, .sizer button, .fontmenu button, .passrow .act';
+  const triggerGlitch = (el) => {
+    if (!el || el.disabled) return;
+    el.classList.remove('glitch');
+    void el.offsetWidth;
+    el.classList.add('glitch');
+    clearTimeout(el._glitchTimer);
+    el._glitchTimer = setTimeout(() => el.classList.remove('glitch'), 480);
+  };
+  document.addEventListener('pointerdown', (e) => {
+    const el = e.target.closest(GLITCH_SELECTOR);
+    if (el) triggerGlitch(el);
+  }, { passive: true });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const el = document.activeElement;
+    if (el && el.matches && el.matches(GLITCH_SELECTOR)) triggerGlitch(el);
+  });
 
   const FONTS = [
     { name: 'Временной',       enName: 'Times',        stack: "'Times New Roman', Times, serif" },
