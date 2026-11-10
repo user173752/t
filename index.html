@@ -83,7 +83,7 @@
     flex:0 0 auto;
   }
   .bar-left { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
-  .bar-right { display:flex; align-items:center; gap:20px; }
+  .bar-right { display:flex; align-items:center; gap:20px; flex-wrap:wrap; justify-content:flex-end; }
   .sizer{ display:flex; align-items:center; gap:2px; }
   .sizer button{
     appearance:none; border:0; background:transparent;
@@ -105,6 +105,8 @@
     transition:color .2s;
   }
   .text-btn:focus{outline:none}
+  .text-btn:hover{ color:var(--text); }
+  
   .fontwrap{ position:relative; display:inline-flex; align-items:center; }
   .menuwrap{ position:relative; display:inline-flex; align-items:center; }
   .fontmenu{
@@ -134,6 +136,13 @@
     -webkit-tap-highlight-color:transparent;
   }
   .fontmenu button.active{color:var(--accent); font-weight:700}
+
+  .editor-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
   .editor{
     width:100%;
     border:0; outline:none; resize:none;
@@ -147,6 +156,35 @@
     min-height:1.75em;
   }
   .editor::placeholder{color:var(--muted); font-style:italic; opacity:.7}
+  
+  .copy-btn {
+    position: absolute;
+    top: 0;
+    right: -32px;
+    background: transparent;
+    border: 0;
+    padding: 4px;
+    color: var(--muted);
+    cursor: default;
+    transition: color 0.2s;
+    display: grid;
+    place-items: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .copy-btn svg {
+    width: 1.1em;
+    height: 1.1em;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+  }
+  .copy-btn:hover, .copy-btn:focus {
+    color: var(--text);
+    outline: none;
+  }
+
   .overlay{
     position:fixed; inset:0; background:var(--overlay);
     display:none; align-items:center; justify-content:center;
@@ -227,33 +265,36 @@
     scrollbar-width:none;
   }
   .info-text::-webkit-scrollbar{ display:none; }
-  @media (max-width:600px){
-    .bar{
-      flex-direction:column;
-      align-items:flex-start;
-      gap:15px;
+  
+  @media (max-width: 600px) {
+    .bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 15px;
     }
-    .bar-right{
-      order:-1;
-      width:100%;
-      justify-content:space-between;
+    .bar-right {
+      order: -1;
+      width: 100%;
+      justify-content: space-between;
     }
-    .bar-left{
-      width:100%;
-      justify-content:space-between;
-      flex-wrap:wrap;
-      gap:14px;
+    .bar-left {
+      width: 100%;
+      justify-content: space-between;
     }
-    .passrow{
-      grid-template-columns:1fr auto;
+    .copy-btn {
+      right: 0;
+      top: -32px;
+    }
+    .passrow {
+      grid-template-columns: 1fr auto;
       grid-template-areas:
         "pw pw"
         "unpack pack";
-      gap:10px;
+      gap: 10px;
     }
-    .passrow .pw{ grid-area:pw; }
-    #btnUnpack{ grid-area:unpack; }
-    #btnPack{ grid-area:pack; }
+    .passrow .pw { grid-area: pw; }
+    #btnUnpack { grid-area: unpack; }
+    #btnPack { grid-area: pack; }
   }
 </style>
 </head>
@@ -267,9 +308,9 @@
         <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
       </div>
       <button class="text-btn" id="inc" aria-label="Больше">+</button>
-      <button class="text-btn" id="go"><span id="goLabel">#Хешнуть</span></button>
     </div>
     <div class="bar-right">
+      <button class="text-btn" id="go"><span id="goLabel">#Применить</span></button>
       <div class="menuwrap" id="menuwrap">
         <button class="text-btn" id="menuToggle">Сюда</button>
         <div class="fontmenu" id="mainMenu" role="menu" aria-label="Меню">
@@ -283,7 +324,15 @@
     </div>
   </div>
 
-  <textarea class="editor" id="editor" rows="1" placeholder="Ввод..." spellcheck="false"></textarea>
+  <div class="editor-container">
+    <textarea class="editor" id="editor" rows="1" placeholder="Ввод..." spellcheck="false"></textarea>
+    <button class="copy-btn" id="copyBtn" aria-label="Копировать">
+      <svg viewBox="0 0 24 24">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <div class="overlay" id="overlay">
@@ -597,6 +646,7 @@
   const infoText = $('infoText');
   const convertBtn = $('go');
   const goLabel = $('goLabel');
+  const copyBtn = $('copyBtn');
 
   const FONTS = [
     { name: 'Временной',       enName: 'Times',        stack: "'Times New Roman', Times, serif" },
@@ -624,14 +674,16 @@
       errFail: 'Нет',
       errError: 'Ошибка',
       msgSaved: 'Офлайнутся',
-      copyText: 'Скопировать',
+      copied: 'Скопировано',
+      copyError: 'Ошибка',
       menuLabel: 'Сюда',
       theme: 'Тема',
       offline: 'Офлайн',
       bitcoin: 'Биток',
       info: 'Инфо',
-      hashBtn: '#Хешнуть',
-      hashAria: 'Хешнуть',
+      hashBtn: '#Применить',
+      hashAria: 'Применить',
+      copyAria: 'Копировать',
       infoText: '?',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha'
     },
@@ -646,14 +698,16 @@
       errFail: 'None',
       errError: 'Error',
       msgSaved: 'Use offline',
-      copyText: 'Copy',
+      copied: 'Copied',
+      copyError: 'Error',
       menuLabel: 'Here',
       theme: 'Theme',
       offline: 'Offline',
       bitcoin: 'Bitcoin',
       info: 'Info',
-      hashBtn: '#Hash',
-      hashAria: 'Hash',
+      hashBtn: '#Apply',
+      hashAria: 'Apply',
+      copyAria: 'Copy',
       infoText: '?',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha'
     }
@@ -691,6 +745,7 @@
     btnUnpack.title = t.unpackTitle;
     goLabel.textContent = t.hashBtn;
     convertBtn.setAttribute('aria-label', t.hashAria);
+    copyBtn.setAttribute('aria-label', t.copyAria);
     menuToggle.textContent = t.menuLabel;
     mainMenu.querySelector('[data-action="theme"]').textContent = t.theme;
     mainMenu.querySelector('[data-action="download"]').textContent = t.offline;
@@ -921,6 +976,17 @@
   });
 
   convertBtn.addEventListener('click', openModal);
+
+  copyBtn.addEventListener('click', async () => {
+    const text = editor.value;
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast(i18n[isEN ? 'en' : 'ru'].copied, 2000);
+    } catch {
+      showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
+    }
+  });
 
   if (location.hash && location.hash.length > 1) {
     const fromHash = extractHash(location.hash);
