@@ -66,7 +66,7 @@
   .wrap{
     max-width:680px;
     margin:0 auto;
-    padding:46px 30px calc(1.75em * 2 + env(safe-area-inset-bottom));
+    padding:46px 30px 24px;
     position:relative;
     display:flex;
     flex-direction:column;
@@ -82,7 +82,7 @@
     z-index:30;
     flex:0 0 auto;
   }
-  .bar-left { display:flex; align-items:center; gap:20px; }
+  .bar-left { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
   .bar-right { display:flex; align-items:center; gap:20px; }
   .sizer{ display:flex; align-items:center; gap:2px; }
   .sizer button{
@@ -147,63 +147,6 @@
     min-height:1.75em;
   }
   .editor::placeholder{color:var(--muted); font-style:italic; opacity:.7}
-
-  .foot{
-    position:fixed;
-    left:0; right:0;
-    bottom:calc(1em + env(safe-area-inset-bottom));
-    z-index:40;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:0 30px;
-    pointer-events:none;
-    background:linear-gradient(to bottom, transparent 0, var(--bg) 45%, var(--bg) 100%);
-  }
-  .foot > *{ pointer-events:auto; }
-  .convert{
-    appearance:none; border:0; background:transparent;
-    color:var(--muted);
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    font-size:15px; font-weight:400; line-height:1.75;
-    padding:.5em .8em;
-    margin:0;
-    cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    gap:.35em;
-    -webkit-tap-highlight-color:transparent;
-    transition:color .2s;
-  }
-  .convert:hover{ color:var(--text); }
-  .convert:focus{ outline:none; }
-  .convert i{
-    display:block;
-    width:1.1em;
-    height:1px;
-    background:var(--muted);
-    transition:width .2s, background .2s;
-  }
-  .convert:hover i,
-  .convert:focus-visible i{ width:1.5em; background:var(--text); }
-
-  .copy-text{
-    position:absolute;
-    left:30px;
-    appearance:none; border:0; background:transparent;
-    color:var(--muted);
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    font-size:15px; line-height:1.75;
-    padding:.5em .8em;
-    margin:0;
-    cursor:pointer;
-    display:none;
-    -webkit-tap-highlight-color:transparent;
-    transition:color .2s;
-  }
-  .copy-text:hover{ color:var(--text); }
-  .copy-text:focus{ outline:none; }
-
   .overlay{
     position:fixed; inset:0; background:var(--overlay);
     display:none; align-items:center; justify-content:center;
@@ -253,7 +196,7 @@
   .modal-status.err{color:#a8442f}
   .modal-status.ok{color:#4a7a3a}
   .toast{
-    position:fixed; bottom:calc(4em + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%) translateY(20px);
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
     background:var(--panel); color:var(--text); border:1px solid var(--line);
     padding:12px 20px; border-radius:8px; box-shadow:var(--shadow);
     font-size:14px; opacity:0; pointer-events:none;
@@ -298,6 +241,8 @@
     .bar-left{
       width:100%;
       justify-content:space-between;
+      flex-wrap:wrap;
+      gap:14px;
     }
     .passrow{
       grid-template-columns:1fr auto;
@@ -309,7 +254,6 @@
     .passrow .pw{ grid-area:pw; }
     #btnUnpack{ grid-area:unpack; }
     #btnPack{ grid-area:pack; }
-    .copy-text{ display:block; }
   }
 </style>
 </head>
@@ -323,6 +267,7 @@
         <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
       </div>
       <button class="text-btn" id="inc" aria-label="Больше">+</button>
+      <button class="text-btn" id="go"><span id="goLabel">#Хешнуть</span></button>
     </div>
     <div class="bar-right">
       <div class="menuwrap" id="menuwrap">
@@ -339,11 +284,6 @@
   </div>
 
   <textarea class="editor" id="editor" rows="1" placeholder="Ввод..." spellcheck="false"></textarea>
-</div>
-
-<div class="foot">
-  <button class="copy-text" id="copyEditor">Скопировать</button>
-  <button class="convert" id="go"><span>#</span><i></i></button>
 </div>
 
 <div class="overlay" id="overlay">
@@ -656,7 +596,7 @@
   const donateText = $('donateText');
   const infoText = $('infoText');
   const convertBtn = $('go');
-  const copyBtn = $('copyEditor');
+  const goLabel = $('goLabel');
 
   const FONTS = [
     { name: 'Временной',       enName: 'Times',        stack: "'Times New Roman', Times, serif" },
@@ -690,7 +630,8 @@
       offline: 'Офлайн',
       bitcoin: 'Биток',
       info: 'Инфо',
-      convert: '#преобразовать',
+      hashBtn: '#Хешнуть',
+      hashAria: 'Хешнуть',
       infoText: '?',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha'
     },
@@ -711,7 +652,8 @@
       offline: 'Offline',
       bitcoin: 'Bitcoin',
       info: 'Info',
-      convert: '#convert',
+      hashBtn: '#Hash',
+      hashAria: 'Hash',
       infoText: '?',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha'
     }
@@ -747,9 +689,8 @@
     editor.placeholder = t.placeholder;
     btnPack.title = t.packTitle;
     btnUnpack.title = t.unpackTitle;
-    copyBtn.textContent = t.copyText;
-    convertBtn.querySelector('span').textContent = '#';
-    convertBtn.setAttribute('aria-label', t.convert);
+    goLabel.textContent = t.hashBtn;
+    convertBtn.setAttribute('aria-label', t.hashAria);
     menuToggle.textContent = t.menuLabel;
     mainMenu.querySelector('[data-action="theme"]').textContent = t.theme;
     mainMenu.querySelector('[data-action="download"]').textContent = t.offline;
@@ -846,21 +787,19 @@
   $('inc').addEventListener('click', () => { if (fontSize < 38) { fontSize += 2; applySize(); } });
 
   let growScheduled = false;
-  let growTimer = null;
   const grow = () => {
     if (growScheduled) return;
     growScheduled = true;
     requestAnimationFrame(() => {
       growScheduled = false;
-      editor.style.height = 'auto';
-      editor.style.height = editor.scrollHeight + 'px';
+      const current = editor.offsetHeight;
+      const needed = editor.scrollHeight;
+      if (needed !== current) {
+        editor.style.height = needed + 'px';
+      }
     });
   };
-  const scheduleGrow = () => {
-    if (growTimer) clearTimeout(growTimer);
-    growTimer = setTimeout(grow, 120);
-  };
-  editor.addEventListener('input', scheduleGrow);
+  editor.addEventListener('input', grow);
   window.addEventListener('resize', grow);
   if (typeof ResizeObserver !== 'undefined') {
     new ResizeObserver(grow).observe(editor);
@@ -989,17 +928,6 @@
   }
 
   applyLang('ru');
-
-  copyBtn.addEventListener('click', async () => {
-    const text = editor.value;
-    if (!text) return;
-    try {
-      await navigator.clipboard.writeText(text);
-      showToast(isEN ? 'Copied' : 'Скопировано', 2000);
-    } catch {
-      showToast(isEN ? 'Error' : 'Ошибка', 2000);
-    }
-  });
 
 })();
 </script>
