@@ -71,16 +71,18 @@
     display:flex;
     flex-direction:column;
   }
+  
   .bar{
     display:flex; align-items:center; justify-content:space-between;
-    gap:24px; margin-bottom:36px;
+    gap:24px; 
+    margin-bottom:24px;
     font-size:15px; color:var(--muted);
     user-select:none;
-    padding-bottom:20px;
     border-bottom:1px solid var(--line);
     position:relative;
     z-index:30;
     flex:0 0 auto;
+    padding-bottom:20px;
   }
   .bar-left { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
   .bar-right { display:flex; align-items:center; gap:20px; flex-wrap:wrap; justify-content:flex-end; }
@@ -149,6 +151,7 @@
     background:transparent; color:var(--text);
     font:inherit; line-height:1.75;
     padding:0;
+    padding-right:28px;
     letter-spacing:.005em;
     overflow:hidden;
     position:relative;
@@ -160,16 +163,24 @@
   .copy-btn {
     position: absolute;
     top: 0;
-    right: -32px;
-    background: transparent;
-    border: 0;
+    right: 0;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
     padding: 4px;
+    margin: 0;
     color: var(--muted);
     cursor: default;
     transition: color 0.2s;
     display: grid;
     place-items: center;
     -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .copy-btn::-moz-focus-inner {
+    border: 0;
   }
   .copy-btn svg {
     width: 1.1em;
@@ -179,10 +190,10 @@
     stroke-linecap: round;
     stroke-linejoin: round;
     fill: none;
+    pointer-events: none;
   }
-  .copy-btn:hover, .copy-btn:focus {
+  .copy-btn:hover {
     color: var(--text);
-    outline: none;
   }
 
   .overlay{
@@ -280,10 +291,6 @@
     .bar-left {
       width: 100%;
       justify-content: space-between;
-    }
-    .copy-btn {
-      right: 0;
-      top: -32px;
     }
     .passrow {
       grid-template-columns: 1fr auto;
