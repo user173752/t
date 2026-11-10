@@ -441,50 +441,9 @@
   'use strict';
 
   var NAMES = [
-    "Ivan","Petr","Oleg","Dima","Max","Egor","Ilya","Lev","Yra","Koly",
-    "Vasy","Pety","Vany","Sasha","Pasha","Zhora","Kosty","Gena","Slava","Bory",
-    "Toly","Vity","Den","Yasha","Grisha","Misha","Artem","Boris","Vadim","Roman",
-    "Tima","Denis","Anton","Kiril","Stas","Vlad","Gleb","Mark","Igor","Rusik",
-    "Marat","Emil","Adam","Leon","Karl","Erik","Askar","Amir","Yan","Kim",
-    "Yuly","Vil","Luka","Yuzef","Foma","Yunus","Sery","Zhan","Osip","Akop",
-    "Khaim","Ion","Klim","Miha","Anis","Amin","Yanis","Ruf","Yuri","Aziz",
-    "Rif","Azad","Mir","Fir","Kir","Leo","Yas","Yunis","Lesha","Tema",
-    "Vadik","Vova","Dany","Deny","Leny","Nikita","Roma","Seryozha","Mity","Mityai",
-    "Alyosha","Danil","Kirill","Leonid","Matvey","Pavel","Stanislav","Savva","Sava","Vlas",
-    "Innokentiy","Iosif","Ippolit","Irakliy","Isaak","Kar","Kasyan","Klementiy","Kondrat","Konon",
-    "Kornil","Kuzma","Lavrentiy","Lazar","Lon","Lukyan","Makar","Martin","Mefody","Milan",
-    "Miron","Mokey","Mstislav","Naum","Nestor","Nifont","Nikandr","Nikanor","Nikodim","Nikolay",
-    "Nikon","Nil","Oskar","Ostap","Pankrat","Panteley","Patrikey","Pimen","Platon","Potap",
-    "Prokhor","Rafail","Ratmir","Rodion","Rostislav","Saveliy","Samson","Samuel","Semyon","Sergey",
-    "Sidor","Sokrat","Solomon","Spartak","Stepan","Taras","Tigran","Tikhon","Timofey","Trofim",
-    "Ustin","Valery","Vasily","Veniamin","Viktor","Vilen","Vissarion","Vitaliy","Vladimir","Vladislav",
-    "Vsevolod","Vyacheslav","Yakov","Yefim","Yelisey","Yemelyan","Yeremey","Yermolay","Yevgeniy","Yevgraf",
-    "Yevdokim","Yevstafiy","Yulian","Zakhar","Zinoviy","Zosima","Aristarkh","Arseniy","Artemy",
-    "Artur","Afanasy","Bogdan","Bronislav","Budimir","Demid","Dementy","Demyan","Dionis","Dmitry",
-    "Dobrynya","Dorofey","Daniil","David","Dobromir","Andrey","Aleksey","Anatoly","Arkady","Arnold",
-    "Valentin","Valerian","Venedikt","Vikenty","Vladlen","Vseslav","Gavriil","Gennadiy","Georgiy",
-    "German","Gordey","Grigory","Dan","Yefrem","Zosim","Ignat","Ignatiy",
-    "Izmail","Illarion","Iosaf","Vily","Isay","Kazimir","Kallistrat","Kapiton",
-    "Konstantin","Lavr","Leontiy","Lyubomir","Maksim","Maksimilian","Antip","Marty",
-    "Mecheslav","Mefodiy","Miley","Miroslav","Mihail","Modest",
-    "Anna","Olga","Vera","Masha","Dasha","Katya","Tanya","Sveta","Lena","Yana",
-    "Rima","Zoya","Nina","Lida","Galya","Tonya","Nadya","Sonya","Klava","Mira",
-    "Lera","Vika","Dina","Polya","Rita","Sima","Olya","Asya","Inna","Raya",
-    "Faya","Zina","Liza","Mila","Ulya","Yulia","Oksana","Alina","Vlada",
-    "Daria","Marina","Larisa","Natalia","Ksenia","Nika","Alisa","Eva","Maya","Varya",
-    "Sofia","Kira","Vasilisa","Ulyana","Anastasia","Valeria","Kristina","Viktoria","Ekaterina","Evgenia",
-    "Lyubov","Nadezhda","Lyudmila","Svetlana","Tatyana","Galina","Valentina","Raisa","Zinaida",
-    "Tamara","Alla","Emma","Elza","Ada","Liya","Lola","Nell",
-    "Nora","Roza","Ruta","Sara","Faina","Flora","Elvira","Yuna",
-    "Alena","Angelina","Anzhelika","Ariadna","Arina",
-    "Bella","Berta","Bogdana","Vanda","Varvara","Veronika",
-    "Violetta","Vita","Vladislava","Gella","Diana",
-    "Evdokiya","Elmira","Emiliya",
-    "Erika","Esfir","Zhanna","Zarina","Zulfiya","Inessa",
-    "Iraida","Iya","Kapitolina","Karina","Klavdiya"
+   "Ivan", "Petr", "Oleg", "Dima", "Max", "Egor", "Ilya", "Lev", "Yra", "Koly", "Vasy", "Pety", "Vany", "Sasha", "Pasha", "Zhora", "Kosty", "Gena", "Slava", "Bory", "Toly", "Vity", "Den", "Yasha", "Misha", "Artem", "Boris", "Vadim", "Roman", "Tima", "Denis", "Anton", "Kiril", "Stas", "Vlad", "Gleb", "Mark", "Igor", "Rusik", "Marat", "Emil", "Adam", "Leon", "Karl", "Erik", "Askar", "Amir", "Yan", "Kim", "Yuly", "Vil", "Luka", "Yuzef", "Foma", "Yunus", "Sery", "Zhan", "Osip", "Akop", "Khaim", "Ion", "Klim", "Miha", "Anis", "Amin", "Yanis", "Ruf", "Yuri", "Aziz", "Rif", "Azad", "Mir", "Fir", "Kir", "Leo", "Yas", "Yunis", "Lesha", "Tema", "Vadik", "Vova", "Dany", "Deny", "Leny", "Roma", "Mity", "Danil", "Pavel", "Savva", "Sava", "Vlas", "Iosif", "Isaak", "Kar", "Konon", "Kornil", "Kuzma", "Lazar", "Lon", "Lukyan", "Makar", "Martin", "Mefody", "Milan", "Miron", "Mokey", "Naum", "Nestor", "Nifont", "Nikon", "Nil", "Oskar", "Ostap", "Pimen", "Platon", "Potap", "Rafail", "Ratmir", "Rodion", "Samson", "Samuel", "Semyon", "Sergey", "Sidor", "Sokrat", "Stepan", "Taras", "Tigran", "Tikhon", "Trofim", "Ustin", "Valery", "Vasily", "Viktor", "Vilen", "Yakov", "Yefim", "Yulian", "Zakhar", "Zosima", "Artemy", "Artur", "Bogdan", "Demid", "Demyan", "Dionis", "Dmitry", "Daniil", "David", "Andrey", "Arkady", "Arnold", "German", "Gordey", "Dan", "Yefrem", "Zosim", "Ignat", "Izmail", "Iosaf", "Vily", "Isay", "Lavr", "Maksim", "Antip", "Marty", "Miley", "Mihail", "Modest", "Anna", "Olga", "Vera", "Masha", "Dasha", "Katya", "Tanya", "Sveta", "Lena", "Yana", "Rima", "Zoya", "Nina", "Lida", "Galya", "Tonya", "Nadya", "Sonya", "Klava", "Mira", "Lera", "Vika", "Dina", "Polya", "Rita", "Sima", "Olya", "Asya", "Inna", "Raya", "Faya", "Zina", "Liza", "Mila", "Ulya", "Yulia", "Oksana", "Alina", "Vlada", "Daria", "Marina", "Larisa", "Ksenia", "Nika", "Alisa", "Eva", "Maya", "Varya", "Sofia", "Kira", "Ulyana", "Lyubov", "Galina", "Raisa", "Tamara", "Alla", "Emma", "Elza", "Ada", "Liya", "Lola", "Nell", "Nora", "Roza", "Ruta", "Sara", "Faina", "Flora", "Elvira", "Yuna", "Alena", "Arina", "Bella", "Berta", "Vanda", "Vita", "Gella", "Diana", "Elmira", "Erika", "Esfir", "Zhanna", "Zarina", "Inessa", "Iraida", "Iya", "Karina"
   ];
 
-  // Ровно 256 уникальных токенов
   var TECH = [
     "8","9","X",
     "10","11","12","13","14","15","16","17",
