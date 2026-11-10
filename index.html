@@ -213,23 +213,6 @@
     display: none;
   }
   .editor::placeholder{color:var(--muted); font-style:italic; opacity:.7}
-  
-  .copy-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: 6px;
-  }
-  .copy-icon svg {
-    width: 1.1em;
-    height: 1.1em;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    fill: none;
-    pointer-events: none;
-  }
 
   .overlay{
     position:fixed; inset:0; background:var(--overlay);
@@ -347,7 +330,6 @@
   }
 
   .menu-row-hidden{ display:none; }
-  .menu-icon-hidden{ display:none; }
   .sizer-hidden{ display:none; }
 
   @media (max-width: 600px) {
@@ -363,9 +345,8 @@
     #go { grid-area: go; margin-left: 0; justify-self: start; }
     #lang { grid-area: lang; }
     .menuwrap { grid-area: menu; }
-    #dec, #inc, .fontwrap, #copyLinkBtn, #copyBtn { display: none; }
+    #dec, #inc, .fontwrap { display: none; }
     .menu-row-hidden{ display:flex; }
-    .menu-icon-hidden{ display:inline-flex; }
     .sizer-hidden{ display:flex; }
     .passrow {
       grid-template-columns: 1fr auto;
@@ -400,27 +381,10 @@
           <button type="button" data-action="download">Офлайн</button>
           <button type="button" data-action="donate">Биток</button>
           <button type="button" data-action="info">Инфо</button>
-          <button type="button" data-action="copy-text" class="menu-icon-hidden">
-            <span class="menu-icon">
-              <svg viewBox="0 0 24 24">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-              </svg>
-            </span>
-          </button>
-          <button type="button" data-action="copy-link" class="menu-icon-hidden">
-            <span class="menu-icon">
-              <svg viewBox="0 0 24 24">
-                <path d="M9.5 14.5l5-5"></path>
-                <path d="M11 17l-1.5 1.5a4 4 0 0 1-5.66-5.66L5.5 11.18"></path>
-                <path d="M13 7l1.5-1.5a4 4 0 0 1 5.66 5.66L18.5 12.82"></path>
-              </svg>
-            </span>
-          </button>
           <button type="button" data-action="clear">Очистить</button>
-          <button type="button" data-action="font" class="menu-row-hidden" id="mobileFontCycle">
-            <span>Шрифт</span>
-          </button>
+          <button type="button" data-action="copy-text">Копитекст</button>
+          <button type="button" data-action="copy-link">Копилинк</button>
+          <button type="button" data-action="font" class="menu-row-hidden" id="mobileFontCycle">Шрифт</button>
           <div class="menu-row menu-row-hidden" id="mobileSizer">
             <button type="button" class="text-btn sizer-hidden" data-size="inc" aria-label="Больше">+</button>
             <button type="button" class="text-btn sizer-hidden" data-size="dec" aria-label="Меньше">−</button>
@@ -429,23 +393,6 @@
       </div>
       <button class="text-btn lang" id="lang">Eng</button>
     </div>
-    <button class="text-btn" id="copyLinkBtn" aria-label="Копировать ссылку">
-      <span class="copy-icon">
-        <svg viewBox="0 0 24 24">
-          <path d="M9.5 14.5l5-5"></path>
-          <path d="M11 17l-1.5 1.5a4 4 0 0 1-5.66-5.66L5.5 11.18"></path>
-          <path d="M13 7l1.5-1.5a4 4 0 0 1 5.66 5.66L18.5 12.82"></path>
-        </svg>
-      </span>
-    </button>
-    <button class="text-btn" id="copyBtn" aria-label="Копировать">
-      <span class="copy-icon">
-        <svg viewBox="0 0 24 24">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-        </svg>
-      </span>
-    </button>
   </div>
 
   <textarea class="editor" id="editor" rows="1" placeholder="Ввод..." spellcheck="false"></textarea>
@@ -814,8 +761,6 @@
   var infoText = $('infoText');
   var convertBtn = $('go');
   var goLabel = $('goLabel');
-  var copyBtn = $('copyBtn');
-  var copyLinkBtn = $('copyLinkBtn');
   var modeToggle = $('modeToggle');
   var modeNames = $('modeNames');
   var modeTech = $('modeTech');
@@ -856,11 +801,11 @@
       bitcoin: 'Биток',
       info: 'Инфо',
       clear: 'Очистить',
+      copyText: 'Копитекст',
+      copyLink: 'Копилинк',
       font: 'Шрифт',
       hashBtn: '#Применить',
       hashAria: 'Применить',
-      copyAria: 'Копировать',
-      copyLinkAria: 'Копировать ссылку',
       infoText: 'Простой инструмент, позволяющий превратить текст в компактную ссылку, которой удобно делиться. Всё происходит локально, никакие данные никуда не утекают. Для полной автономии - скачайте хетемелю и пользуйтесь без интернета. [ybrjujytn@proton.me]',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       modeLabel: 'Словарь:',
@@ -887,11 +832,11 @@
       bitcoin: 'Bitcoin',
       info: 'Info',
       clear: 'Clear',
+      copyText: 'Copytext',
+      copyLink: 'Copylink',
       font: 'Font',
       hashBtn: '#Apply',
       hashAria: 'Apply',
-      copyAria: 'Copy',
-      copyLinkAria: 'Copy link',
       infoText: 'A infote tool that turns text into a compact, shareable link. Everything happens locally in your browser — no data is sent anywhere. For complete independence, download the HTML file and use it offline, without an internet connection. [ybrjujytn@proton.me]',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       modeLabel: 'Dictionary:',
@@ -939,16 +884,16 @@
     btnUnpack.title = t.unpackTitle;
     goLabel.textContent = t.hashBtn;
     convertBtn.setAttribute('aria-label', t.hashAria);
-    copyBtn.setAttribute('aria-label', t.copyAria);
-    copyLinkBtn.setAttribute('aria-label', t.copyLinkAria);
     menuToggle.textContent = t.menuLabel;
     mainMenu.querySelector('[data-action="theme"]').textContent = t.theme;
     mainMenu.querySelector('[data-action="download"]').textContent = t.offline;
     mainMenu.querySelector('[data-action="donate"]').textContent = t.bitcoin;
     mainMenu.querySelector('[data-action="info"]').textContent = t.info;
     mainMenu.querySelector('[data-action="clear"]').textContent = t.clear;
+    mainMenu.querySelector('[data-action="copy-text"]').textContent = t.copyText;
+    mainMenu.querySelector('[data-action="copy-link"]').textContent = t.copyLink;
     var fontBtn = mainMenu.querySelector('[data-action="font"]');
-    fontBtn.querySelector('span:last-child').textContent = t.font;
+    fontBtn.textContent = t.font;
     fontToggle.textContent = t.font;
     langBtn.textContent = isEN ? 'Русский' : 'Eng';
     document.getElementById('modeLabel').textContent = t.modeLabel;
@@ -1159,22 +1104,72 @@
     showToast(i18n[isEN ? 'en' : 'ru'].msgSaved, 4000);
   }
 
+  function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(text).catch(function () {
+        return execCommandCopy(text);
+      });
+    }
+    return execCommandCopy(text);
+  }
+
+  function execCommandCopy(text) {
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.left = '0';
+      ta.style.width = '1px';
+      ta.style.height = '1px';
+      ta.style.padding = '0';
+      ta.style.border = 'none';
+      ta.style.outline = 'none';
+      ta.style.boxShadow = 'none';
+      ta.style.background = 'transparent';
+      ta.style.opacity = '0.01';
+      ta.style.fontSize = '16px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      try {
+        var ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        if (ok) resolve();
+        else reject(new Error('copy failed'));
+      } catch (err) {
+        document.body.removeChild(ta);
+        reject(err);
+      }
+    });
+  }
+
+  function doCopyText() {
+    var text = editor.value;
+    if (!text) return;
+    copyToClipboard(text).then(function () {
+      showToast(i18n[isEN ? 'en' : 'ru'].copied, 2000);
+    }).catch(function () {
+      showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
+    });
+  }
+
+  function doCopyLink() {
+    copyToClipboard(location.href).then(function () {
+      showToast(i18n[isEN ? 'en' : 'ru'].linkCopied, 2000);
+    }).catch(function () {
+      showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
+    });
+  }
+
   mainMenu.querySelectorAll('button').forEach(function (b) {
     b.addEventListener('click', function (e) {
       e.stopPropagation();
       var action = b.dataset.action;
-      if (action === 'copy-text') {
-        copyBtn.click();
-        return;
-      }
-      if (action === 'copy-link') {
-        copyLinkBtn.click();
-        return;
-      }
-      if (action === 'font') {
-        cycleFont();
-        return;
-      }
+      if (action === 'copy-text') { doCopyText(); return; }
+      if (action === 'copy-link') { doCopyLink(); return; }
+      if (action === 'font') { cycleFont(); return; }
       mainDD.close();
       if (action === 'theme') toggleTheme();
       else if (action === 'download') downloadOffline();
@@ -1260,65 +1255,6 @@
   });
 
   convertBtn.addEventListener('click', openModal);
-
-  function copyToClipboard(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(text).catch(function () {
-        return execCommandCopy(text);
-      });
-    }
-    return execCommandCopy(text);
-  }
-
-  function execCommandCopy(text) {
-    return new Promise(function (resolve, reject) {
-      var ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.top = '0';
-      ta.style.left = '0';
-      ta.style.width = '1px';
-      ta.style.height = '1px';
-      ta.style.padding = '0';
-      ta.style.border = 'none';
-      ta.style.outline = 'none';
-      ta.style.boxShadow = 'none';
-      ta.style.background = 'transparent';
-      ta.style.opacity = '0.01';
-      ta.style.fontSize = '16px';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      ta.setSelectionRange(0, text.length);
-      try {
-        var ok = document.execCommand('copy');
-        document.body.removeChild(ta);
-        if (ok) resolve();
-        else reject(new Error('copy failed'));
-      } catch (err) {
-        document.body.removeChild(ta);
-        reject(err);
-      }
-    });
-  }
-
-  copyBtn.addEventListener('click', function () {
-    var text = editor.value;
-    if (!text) return;
-    copyToClipboard(text).then(function () {
-      showToast(i18n[isEN ? 'en' : 'ru'].copied, 2000);
-    }).catch(function () {
-      showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
-    });
-  });
-
-  copyLinkBtn.addEventListener('click', function () {
-    copyToClipboard(location.href).then(function () {
-      showToast(i18n[isEN ? 'en' : 'ru'].linkCopied, 2000);
-    }).catch(function () {
-      showToast(i18n[isEN ? 'en' : 'ru'].copyError, 2000);
-    });
-  });
 
   if (location.hash && location.hash.length > 1) {
     var fromHash = extractHash(location.hash);
