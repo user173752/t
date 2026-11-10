@@ -484,6 +484,7 @@
     "Iraida","Iya","Kapitolina","Karina","Klavdiya"
   ];
 
+  // Ровно 256 уникальных токенов
   var TECH = [
     "8","9","X",
     "10","11","12","13","14","15","16","17",
@@ -512,6 +513,7 @@
     "Titan","Tmall","Ultra","Vatti","Voyah","Weibo","Xpeng","Yunda","Zeekr","Zhihu","ZTO"
   ];
 
+  if (NAMES.length < 256) throw new Error('NAMES must be at least 256, got ' + NAMES.length);
   if (TECH.length !== 256) throw new Error('TECH must be 256, got ' + TECH.length);
   if (new Set(TECH).size !== 256) throw new Error('TECH has duplicates');
   if (TECH.some(function (t) { return t.length > 5; })) throw new Error('TECH token too long');
