@@ -1041,17 +1041,14 @@
     });
   }
 
-  var growScheduled = false;
+    var growScheduled = false;
   function grow() {
     if (growScheduled) return;
     growScheduled = true;
     requestAnimationFrame(function () {
       growScheduled = false;
-      var current = editor.offsetHeight;
-      var needed = editor.scrollHeight;
-      if (needed !== current) {
-        editor.style.height = needed + 'px';
-      }
+      editor.style.height = 'auto';
+      editor.style.height = editor.scrollHeight + 'px';
       if (document.activeElement === editor) {
         ensureCaretVisible();
       }
