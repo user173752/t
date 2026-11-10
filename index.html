@@ -98,7 +98,6 @@
   .bar{
     display:flex;
     align-items:center;
-    gap:20px;
     margin-bottom:36px;
     font-size:15px;
     color:var(--muted);
@@ -109,20 +108,20 @@
     flex:0 0 auto;
     padding-bottom:20px;
   }
-  #go { margin-left: auto; }
   
-  .sizer{ display:flex; align-items:center; gap:2px; }
-  .sizer button{
-    appearance:none; border:0; background:transparent;
-    color:var(--muted);
-    font-family:monospace;
-    font-size:24px; line-height:1;
-    width:28px; height:30px;
-    display:grid; place-items:center;
-    padding:0; cursor:default;
-    transition:color .2s;
+  .bar-desktop{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    width:100%;
   }
-  .sizer button:focus{outline:none}
+  .bar-desktop-right{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    margin-left:auto;
+  }
+  .bar-mobile{ display:none; }
   
   .text-btn{
     appearance:none; 
@@ -149,6 +148,12 @@
   }
   .text-btn::-moz-focus-inner { border: 0; }
   
+  #dec, #inc{
+    font-size:22px;
+    width:22px;
+    justify-content:center;
+  }
+  
   .fontwrap{ position:relative; display:inline-flex; align-items:center; }
   .menuwrap{ position:relative; display:inline-flex; align-items:center; }
   .fontmenu{
@@ -163,6 +168,7 @@
     font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
     white-space:nowrap;
     width:max-content;
+    max-width:calc(100vw - 24px);
   }
   .menuwrap .fontmenu { left:auto; right:0; }
   .fontmenu.open{display:block}
@@ -178,22 +184,6 @@
     -webkit-tap-highlight-color:transparent;
   }
   .fontmenu button.active{color:var(--accent); font-weight:700}
-  .fontmenu .menu-row{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:8px 12px;
-  }
-  .fontmenu .menu-row .text-btn{ font-size:15px; color:var(--text); }
-  .fontmenu .menu-row .sizer button{ font-size:20px; width:24px; height:24px; }
-  .fontmenu .menu-icon{
-    display:inline-flex; align-items:center; justify-content:center;
-  }
-  .fontmenu .menu-icon svg{
-    width:18px; height:18px;
-    stroke:currentColor; fill:none;
-    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
-  }
 
   .editor{
     width:100%;
@@ -209,9 +199,7 @@
     scrollbar-width:none;
     -ms-overflow-style:none;
   }
-  .editor::-webkit-scrollbar {
-    display: none;
-  }
+  .editor::-webkit-scrollbar { display: none; }
   .editor::placeholder{color:var(--muted); font-style:italic; opacity:.7}
 
   .overlay{
@@ -329,25 +317,20 @@
     color:var(--bg);
   }
 
-  .menu-row-hidden{ display:none; }
-  .sizer-hidden{ display:none; }
-
   @media (max-width: 600px) {
-    .bar {
-      display: grid;
-      grid-template-areas: "go . lang menu";
-      grid-template-columns: auto 1fr auto auto;
-      gap: 12px;
-      align-items: center;
+    .bar-desktop{ display:none; }
+    .bar-mobile{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      width:100%;
+      gap:12px;
     }
-    .bar-left { display: contents; }
-    .bar-right { display: contents; }
-    #go { grid-area: go; margin-left: 0; justify-self: start; }
-    #lang { grid-area: lang; }
-    .menuwrap { grid-area: menu; }
-    #dec, #inc, .fontwrap { display: none; }
-    .menu-row-hidden{ display:flex; }
-    .sizer-hidden{ display:flex; }
+    .bar-mobile-right{
+      display:flex;
+      align-items:center;
+      gap:20px;
+    }
     .passrow {
       grid-template-columns: 1fr auto;
       grid-template-areas:
@@ -364,34 +347,50 @@
 <body>
 <div class="wrap">
   <div class="bar">
-    <div class="bar-left">
+    <div class="bar-desktop">
       <button class="text-btn" id="dec" aria-label="Меньше">−</button>
       <div class="fontwrap" id="fontwrap">
         <button class="text-btn" id="fontToggle">Шрифт</button>
         <div class="fontmenu" id="fontMenu" role="menu" aria-label="Шрифт"></div>
       </div>
       <button class="text-btn" id="inc" aria-label="Больше">+</button>
+      <div class="bar-desktop-right">
+        <button class="text-btn" id="go"><span id="goLabel">#Применить</span></button>
+        <div class="menuwrap" id="desktopMenuwrap">
+          <button class="text-btn" id="desktopMenuToggle">Сюда</button>
+          <div class="fontmenu" id="desktopMenu" role="menu" aria-label="Меню">
+            <button type="button" data-action="theme">Тема</button>
+            <button type="button" data-action="download">Офлайн</button>
+            <button type="button" data-action="donate">Биток</button>
+            <button type="button" data-action="info">Инфо</button>
+            <button type="button" data-action="clear">Очистить</button>
+            <button type="button" data-action="copy-text">Копитекст</button>
+            <button type="button" data-action="copy-link">Копилинк</button>
+          </div>
+        </div>
+        <button class="text-btn" id="lang">Eng</button>
+      </div>
     </div>
-    <div class="bar-right">
-      <button class="text-btn" id="go"><span id="goLabel">#Применить</span></button>
-      <div class="menuwrap" id="menuwrap">
-        <button class="text-btn" id="menuToggle">Сюда</button>
-        <div class="fontmenu" id="mainMenu" role="menu" aria-label="Меню">
-          <button type="button" data-action="theme">Тема</button>
-          <button type="button" data-action="download">Офлайн</button>
-          <button type="button" data-action="donate">Биток</button>
-          <button type="button" data-action="info">Инфо</button>
-          <button type="button" data-action="clear">Очистить</button>
-          <button type="button" data-action="copy-text">Копитекст</button>
-          <button type="button" data-action="copy-link">Копилинк</button>
-          <button type="button" data-action="font" class="menu-row-hidden" id="mobileFontCycle">Шрифт</button>
-          <div class="menu-row menu-row-hidden" id="mobileSizer">
-            <button type="button" class="text-btn sizer-hidden" data-size="inc" aria-label="Больше">+</button>
-            <button type="button" class="text-btn sizer-hidden" data-size="dec" aria-label="Меньше">−</button>
+    <div class="bar-mobile">
+      <button class="text-btn" id="goM"><span id="goLabelM">#Применить</span></button>
+      <div class="bar-mobile-right">
+        <button class="text-btn" id="langM">Eng</button>
+        <div class="menuwrap" id="mobileMenuwrap">
+          <button class="text-btn" id="mobileMenuToggle">Сюда</button>
+          <div class="fontmenu" id="mobileMenu" role="menu" aria-label="Меню">
+            <button type="button" data-action="theme">Тема</button>
+            <button type="button" data-action="download">Офлайн</button>
+            <button type="button" data-action="donate">Биток</button>
+            <button type="button" data-action="info">Инфо</button>
+            <button type="button" data-action="clear">Очистить</button>
+            <button type="button" data-action="copy-text">Копитекст</button>
+            <button type="button" data-action="copy-link">Копилинк</button>
+            <button type="button" data-action="font" data-keep-open>Шрифт</button>
+            <button type="button" data-action="size-inc" data-keep-open>+</button>
+            <button type="button" data-action="size-dec" data-keep-open>−</button>
           </div>
         </div>
       </div>
-      <button class="text-btn lang" id="lang">Eng</button>
     </div>
   </div>
 
@@ -750,17 +749,19 @@
   var fontwrap = $('fontwrap');
   var fontMenu = $('fontMenu');
   var fontToggle = $('fontToggle');
-  var menuwrap = $('menuwrap');
-  var mainMenu = $('mainMenu');
-  var menuToggle = $('menuToggle');
+  var desktopMenuwrap = $('desktopMenuwrap');
+  var desktopMenu = $('desktopMenu');
+  var desktopMenuToggle = $('desktopMenuToggle');
+  var mobileMenuwrap = $('mobileMenuwrap');
+  var mobileMenu = $('mobileMenu');
+  var mobileMenuToggle = $('mobileMenuToggle');
   var langBtn = $('lang');
+  var langBtnM = $('langM');
   var toastEl = $('toast');
   var infoModal = $('infoModal');
   var donateModal = $('donateModal');
   var donateText = $('donateText');
   var infoText = $('infoText');
-  var convertBtn = $('go');
-  var goLabel = $('goLabel');
   var modeToggle = $('modeToggle');
   var modeNames = $('modeNames');
   var modeTech = $('modeTech');
@@ -805,7 +806,6 @@
       copyLink: 'Копилинк',
       font: 'Шрифт',
       hashBtn: '#Применить',
-      hashAria: 'Применить',
       infoText: 'Простой инструмент, позволяющий превратить текст в компактную ссылку, которой удобно делиться. Всё происходит локально, никакие данные никуда не утекают. Для полной автономии - скачайте хетемелю и пользуйтесь без интернета. [ybrjujytn@proton.me]',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       modeLabel: 'Словарь:',
@@ -836,7 +836,6 @@
       copyLink: 'Copylink',
       font: 'Font',
       hashBtn: '#Apply',
-      hashAria: 'Apply',
       infoText: 'A infote tool that turns text into a compact, shareable link. Everything happens locally in your browser — no data is sent anywhere. For complete independence, download the HTML file and use it offline, without an internet connection. [ybrjujytn@proton.me]',
       donateText: 'bc1qqx8qn6jd6jn7vstjp86n990thzlkmvauu2wyha',
       modeLabel: 'Dictionary:',
@@ -863,7 +862,6 @@
     el.classList.add('open');
     document.body.classList.add('modal-open');
   }
-
   function hideModal(el) {
     el.classList.remove('open');
     document.body.classList.remove('modal-open');
@@ -875,6 +873,10 @@
     modeTech.classList.toggle('active', mode === 'tech');
   }
 
+  function setMany(selector, text) {
+    document.querySelectorAll(selector).forEach(function (el) { el.textContent = text; });
+  }
+
   function applyLang(lang) {
     var t = i18n[lang];
     isEN = (lang === 'en');
@@ -882,21 +884,22 @@
     editor.placeholder = t.placeholder;
     btnPack.title = t.packTitle;
     btnUnpack.title = t.unpackTitle;
-    goLabel.textContent = t.hashBtn;
-    convertBtn.setAttribute('aria-label', t.hashAria);
-    menuToggle.textContent = t.menuLabel;
-    mainMenu.querySelector('[data-action="theme"]').textContent = t.theme;
-    mainMenu.querySelector('[data-action="download"]').textContent = t.offline;
-    mainMenu.querySelector('[data-action="donate"]').textContent = t.bitcoin;
-    mainMenu.querySelector('[data-action="info"]').textContent = t.info;
-    mainMenu.querySelector('[data-action="clear"]').textContent = t.clear;
-    mainMenu.querySelector('[data-action="copy-text"]').textContent = t.copyText;
-    mainMenu.querySelector('[data-action="copy-link"]').textContent = t.copyLink;
-    var fontBtn = mainMenu.querySelector('[data-action="font"]');
-    fontBtn.textContent = t.font;
+    $('goLabel').textContent = t.hashBtn;
+    $('goLabelM').textContent = t.hashBtn;
+    setMany('[data-action="theme"]', t.theme);
+    setMany('[data-action="download"]', t.offline);
+    setMany('[data-action="donate"]', t.bitcoin);
+    setMany('[data-action="info"]', t.info);
+    setMany('[data-action="clear"]', t.clear);
+    setMany('[data-action="copy-text"]', t.copyText);
+    setMany('[data-action="copy-link"]', t.copyLink);
+    setMany('[data-action="font"]', t.font);
     fontToggle.textContent = t.font;
+    desktopMenuToggle.textContent = t.menuLabel;
+    mobileMenuToggle.textContent = t.menuLabel;
     langBtn.textContent = isEN ? 'Русский' : 'Eng';
-    document.getElementById('modeLabel').textContent = t.modeLabel;
+    langBtnM.textContent = isEN ? 'Русский' : 'Eng';
+    $('modeLabel').textContent = t.modeLabel;
     modeNames.textContent = t.modeNames;
     modeTech.textContent = t.modeTech;
     fontMenu.querySelectorAll('button').forEach(function (b) {
@@ -908,7 +911,9 @@
     donateText.textContent = t.donateText;
   }
 
-  langBtn.addEventListener('click', function () { applyLang(isEN ? 'ru' : 'en'); });
+  function toggleLang() { applyLang(isEN ? 'ru' : 'en'); }
+  langBtn.addEventListener('click', toggleLang);
+  langBtnM.addEventListener('click', toggleLang);
 
   modeToggle.addEventListener('click', function (e) {
     var btn = e.target.closest('button[data-mode]');
@@ -937,8 +942,7 @@
 
   function cycleFont() {
     var idx = FONTS.findIndex(function (f) { return f.stack === currentFont; });
-    var next = FONTS[(idx + 1) % FONTS.length];
-    applyFont(next.stack);
+    applyFont(FONTS[(idx + 1) % FONTS.length].stack);
   }
 
   function makeDropdown(wrap, toggle, menu) {
@@ -958,7 +962,8 @@
   }
 
   var fontDD = makeDropdown(fontwrap, fontToggle, fontMenu);
-  var mainDD = makeDropdown(menuwrap, menuToggle, mainMenu);
+  var desktopDD = makeDropdown(desktopMenuwrap, desktopMenuToggle, desktopMenu);
+  var mobileDD = makeDropdown(mobileMenuwrap, mobileMenuToggle, mobileMenu);
 
   FONTS.forEach(function (f) {
     var b = document.createElement('button');
@@ -1006,23 +1011,26 @@
     try { localStorage.setItem(SIZE_KEY, String(fontSize)); } catch (err) {}
   }
   applySize();
-  $('dec').addEventListener('click', function () { if (fontSize > 14) { fontSize -= 2; applySize(); } });
-  $('inc').addEventListener('click', function () { if (fontSize < 38) { fontSize += 2; applySize(); } });
 
-  var mobileSizer = $('mobileSizer');
-  mobileSizer.querySelectorAll('button[data-size]').forEach(function (b) {
-    b.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (b.dataset.size === 'inc' && fontSize < 38) { fontSize += 2; applySize(); }
-      if (b.dataset.size === 'dec' && fontSize > 14) { fontSize -= 2; applySize(); }
-    });
-  });
+  function changeSize(delta) {
+    var next = fontSize + delta;
+    if (next < 14 || next > 38) return;
+    fontSize = next;
+    applySize();
+  }
+
+  $('dec').addEventListener('click', function () { changeSize(-2); });
+  $('inc').addEventListener('click', function () { changeSize(2); });
 
   function ensureCaretVisible() {
+    if (document.activeElement !== editor) return;
+    var vv = window.visualViewport;
+    var vh = vv ? vv.height : window.innerHeight;
+    var vo = vv ? vv.offsetTop : 0;
     var rect = editor.getBoundingClientRect();
-    var vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    var overflow = rect.bottom - (vh - 24);
-    if (overflow > 5) {
+    var visibleBottom = vo + vh;
+    var overflow = rect.bottom - visibleBottom + 24;
+    if (overflow > 0) {
       window.scrollBy(0, overflow);
     }
   }
@@ -1163,25 +1171,43 @@
     });
   }
 
-  mainMenu.querySelectorAll('button').forEach(function (b) {
-    b.addEventListener('click', function (e) {
-      e.stopPropagation();
-      var action = b.dataset.action;
-      if (action === 'copy-text') { doCopyText(); return; }
-      if (action === 'copy-link') { doCopyLink(); return; }
-      if (action === 'font') { cycleFont(); return; }
-      mainDD.close();
-      if (action === 'theme') toggleTheme();
-      else if (action === 'download') downloadOffline();
-      else if (action === 'donate') showModal(donateModal);
-      else if (action === 'info') showModal(infoModal);
-      else if (action === 'clear') {
-        editor.value = '';
-        setHash('');
-        grow();
-      }
+  function doClear() {
+    editor.value = '';
+    setHash('');
+    grow();
+  }
+
+  function dispatchAction(action) {
+    if (action === 'theme') toggleTheme();
+    else if (action === 'download') downloadOffline();
+    else if (action === 'donate') showModal(donateModal);
+    else if (action === 'info') showModal(infoModal);
+    else if (action === 'clear') doClear();
+    else if (action === 'copy-text') doCopyText();
+    else if (action === 'copy-link') doCopyLink();
+    else if (action === 'font') cycleFont();
+    else if (action === 'size-inc') changeSize(2);
+    else if (action === 'size-dec') changeSize(-2);
+  }
+
+  function bindMenu(menu, dd) {
+    menu.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var action = b.dataset.action;
+        if (!b.hasAttribute('data-keep-open')) {
+          dd.close();
+        }
+        dispatchAction(action);
+      });
     });
-  });
+  }
+
+  bindMenu(desktopMenu, desktopDD);
+  bindMenu(mobileMenu, mobileDD);
+
+  $('go').addEventListener('click', openModal);
+  $('goM').addEventListener('click', openModal);
 
   function doPack() {
     var text = editor.value;
@@ -1253,8 +1279,6 @@
   pwInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') { e.preventDefault(); doPack(); }
   });
-
-  convertBtn.addEventListener('click', openModal);
 
   if (location.hash && location.hash.length > 1) {
     var fromHash = extractHash(location.hash);
